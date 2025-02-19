@@ -4,9 +4,13 @@
 require __DIR__.'/../vendor/autoload.php';
 
 use Symfony\Component\Console\Application;
+use Toxicity\AlteredApi\Command\AlteredSetCommand;
 use Toxicity\AlteredApi\Command\AlteredTokenCommand;
+use Toxicity\AlteredApi\Command\AlteredCardCommand;
 
 $application = new Application();
 $application->add(new AlteredTokenCommand());
+$application->add(new AlteredSetCommand());
+$application->add(new AlteredCardCommand());
 
 $application->run();

@@ -17,7 +17,9 @@
         "php": ">=8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "symfony/console": "^7.2"
+        "symfony/console": "^7.2",
+        "symfony/http-client": "^7.2",
+        "symfony/validator": "^7.2"
     },
     "require-dev": {
         "symfony/panther": "^2.2"

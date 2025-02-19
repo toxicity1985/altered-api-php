@@ -1,6 +1,5 @@
 <?php
 
-// src/Command/CreateUserCommand.php
 namespace Toxicity\AlteredApi\Command;
 
 use Exception;
