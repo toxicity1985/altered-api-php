@@ -1,6 +1,8 @@
 {
     "name": "toxicity/altered-api-php",
     "type": "library",
+    "description": "Eases the api usage from the altered.gg website.",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
             "Toxicity\\AlteredApi\\": "src/"

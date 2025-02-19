@@ -90,8 +90,6 @@ readonly class AlteredApiService
     }
 
     /**
-     * @param string $id
-     * @return array
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws RedirectionExceptionInterface
