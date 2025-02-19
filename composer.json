@@ -1,0 +1,25 @@
+{
+    "name": "toxicity/altered-api-php",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Toxicity\\AlteredApi\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "John Quairia",
+            "email": "tech@toxicity.be"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=8.2",
+        "ext-ctype": "*",
+        "ext-iconv": "*",
+        "symfony/console": "^7.2"
+    },
+    "require-dev": {
+        "symfony/panther": "^2.2"
+    }
+}
