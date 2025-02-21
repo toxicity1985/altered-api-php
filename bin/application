@@ -7,10 +7,12 @@ use Symfony\Component\Console\Application;
 use Toxicity\AlteredApi\Command\AlteredSetCommand;
 use Toxicity\AlteredApi\Command\AlteredTokenCommand;
 use Toxicity\AlteredApi\Command\AlteredCardCommand;
+use Toxicity\AlteredApi\Command\AlteredUserCommand;
 
 $application = new Application();
 $application->add(new AlteredTokenCommand());
 $application->add(new AlteredSetCommand());
 $application->add(new AlteredCardCommand());
+$application->add(new AlteredUserCommand());
 
 $application->run();

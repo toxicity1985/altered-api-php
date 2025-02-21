@@ -21,6 +21,6 @@ class AlteredHttpClient
      */
     public function request(string $method, string $url, array $options = []): ResponseInterface
     {
-        return $this->client->request($method, $url, $options);
+        return $this->client->request($method, 'https://api.altered.gg' . $url, $options);
     }
 }

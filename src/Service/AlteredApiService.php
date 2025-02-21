@@ -25,7 +25,7 @@ readonly class AlteredApiService
      */
     public function getSets(?string $locale = 'fr-fr'): array
     {
-        $url = $this->buildUrl('https://api.altered.gg/card_sets', $locale);
+        $url = $this->buildUrl('/card_sets', $locale);
 
         $sets = [];
 
@@ -49,7 +49,7 @@ readonly class AlteredApiService
      */
     public function getCardById(string $id, ?string $locale = null): array
     {
-        $url = $this->buildUrl('https://api.altered.gg/cards/' . $id, $locale);
+        $url = $this->buildUrl('/cards/' . $id, $locale);
 
         $response = $this->alteredHttpClient->request('GET', $url);
         return $response->toArray();
@@ -69,7 +69,7 @@ readonly class AlteredApiService
         $cards = [];
         $options = [];
 
-        $url = $this->buildUrl('https://api.altered.gg/cards' . $searchCardRequest->getUrlParameters(), $locale);
+        $url = $this->buildUrl('/cards' . $searchCardRequest->getUrlParameters(), $locale);
 
 
         while (!$empty) {
@@ -98,7 +98,7 @@ readonly class AlteredApiService
      */
     public function getAlternateCardsById(string $id, ?string $locale = null): array
     {
-        $url = $this->buildUrl('https://api.altered.gg/cards/' . $id . '/variants', $locale);
+        $url = $this->buildUrl('/cards/' . $id . '/variants', $locale);
 
         $cards = [];
 
@@ -127,7 +127,7 @@ readonly class AlteredApiService
         $friends = [];
 
         while (!$empty) {
-            $response = $this->alteredHttpClient->request('GET', 'https://api.altered.gg/user_friendships?itemsPerPage=30&page=' . $page, ['headers' => ['Authorization' => 'Bearer ' . $token]]);
+            $response = $this->alteredHttpClient->request('GET', '/user_friendships?itemsPerPage=30&page=' . $page, ['headers' => ['Authorization' => 'Bearer ' . $token]]);
 
             $content = $response->toArray();
 
@@ -150,14 +150,14 @@ readonly class AlteredApiService
      * @throws DecodingExceptionInterface
      * @throws ClientExceptionInterface
      */
-    public function getFriendsListForId(string $id, string $token): array
+    public function getFriendsListForId(string $uniqueId, string $token): array
     {
         $page = 1;
         $empty = false;
         $friends = [];
 
         while (!$empty) {
-            $response = $this->alteredHttpClient->request('GET', 'https://api.altered.gg/user_friendships/friends/' . $id . '?itemsPerPage=30&page=' . $page, ['headers' => ['Authorization' => 'Bearer ' . $token]]);
+            $response = $this->alteredHttpClient->request('GET', '/user_friendships/friends/' . $uniqueId . '?itemsPerPage=30&page=' . $page, ['headers' => ['Authorization' => 'Bearer ' . $token]]);
 
             $content = $response->toArray();
 
@@ -173,6 +173,19 @@ readonly class AlteredApiService
         return $friends;
     }
 
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public function getFriendProfile(string $uniqueId, string $token): array
+    {
+        $response = $this->alteredHttpClient->request('GET', '/users/profile/' . $uniqueId, ['headers' => ['Authorization' => 'Bearer ' . $token]]);
+        return $response->toArray();
+    }
+
     private function buildUrl(string $url, ?string $locale): string
     {
         if ($locale) {
@@ -180,5 +193,118 @@ readonly class AlteredApiService
         }
 
         return $url;
+    }
+
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public function me(string $token): array
+    {
+        $response = $this->alteredHttpClient->request('GET', '/me', ['headers' => ['Authorization' => 'Bearer ' . $token]]);
+        return $response->toArray();
+    }
+
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public function getFactions(?string $locale = 'fr-fr'): array
+    {
+        $url = $this->buildUrl('/factions', $locale);
+
+        $sets = [];
+
+        $response = $this->alteredHttpClient->request('GET', $url);
+
+        $content = $response->toArray();
+
+        if (count($content['hydra:member']) > 0) {
+            $sets = array_merge($sets, $content['hydra:member']);
+        }
+
+        return $sets;
+    }
+
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public function getCollection(string $token): array
+    {
+        $page = 1;
+        $empty = false;
+        $cardStats = [];
+
+        while (!$empty) {
+            $response = $this->alteredHttpClient->request('GET', '/cards/stats?collection=true&itemsPerPage=36&locale=en-us&page=' . $page, ['headers' => ['Authorization' => 'Bearer ' . $token]]);
+
+            $content = $response->toArray();
+
+            if (count($content['hydra:member']) > 0) {
+                $cardStats = array_merge($cardStats, $content['hydra:member']);
+                $page++;
+            } else {
+                $empty = true;
+            }
+
+        }
+
+        return $cardStats;
+    }
+
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public function getFriendStats(string $uniqueId, string $token): array
+    {
+        $response = $this->alteredHttpClient->request('GET', '/users/Kit3tsu_7919/stats/' . $uniqueId, ['headers' => ['Authorization' => 'Bearer ' . $token]]);
+        return $response->toArray();
+    }
+
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public function getFriendTradeListForId(string $id, string $token, ?string $locale = 'fr-fr'): array
+    {
+        $page = 1;
+        $empty = false;
+        $cardToTrade = [];
+
+        $url = $this->buildUrl('/cards/stats?collection=true&itemsPerPage=36' . $id . '/trades', $locale);
+
+        while (!$empty) {
+            $response = $this->alteredHttpClient->request('GET', $url . '&page=' . $page, ['headers' => ['Authorization' => 'Bearer ' . $token]]);
+
+            $content = $response->toArray();
+
+            if (count($content['hydra:member']) > 0) {
+                $cardToTrade = array_merge($cardToTrade, $content['hydra:member']);
+                $page++;
+            } else {
+                $empty = true;
+            }
+
+        }
+
+        return $cardToTrade;
+
     }
 }

@@ -29,8 +29,44 @@ class Friends extends AlteredApiResource
      * @throws DecodingExceptionInterface
      * @throws ClientExceptionInterface
      */
-    public static function allForId(string $id, string $token): array
+    public static function allForId(string $uniqueId, string $token): array
     {
-        return self::build()->getFriendsListForId($id, $token);
+        return self::build()->getFriendsListForId($uniqueId, $token);
+    }
+
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public static function tradeListForId(string $id, string $token): array
+    {
+        return self::build()->getFriendTradeListForId($id, $token);
+    }
+
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public static function profile(string $uniqueId, string $token): array
+    {
+        return self::build()->getFriendProfile($uniqueId, $token);
+    }
+
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public static function stats(string $uniqueId, string $token): array
+    {
+        return self::build()->getFriendStats($uniqueId, $token);
     }
 }
