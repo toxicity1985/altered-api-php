@@ -9,6 +9,7 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Toxicity\AlteredApi\Provider\AlteredHttpClient;
 use Toxicity\AlteredApi\Request\SearchCardRequest;
+use Toxicity\AlteredApi\Request\SearchEventRequest;
 
 readonly class AlteredApiService
 {
@@ -189,7 +190,11 @@ readonly class AlteredApiService
     private function buildUrl(string $url, ?string $locale): string
     {
         if ($locale) {
-            $url .= '?locale=' . $locale;
+            if (strpos($url, '?') > 0) {
+                $url .= '&locale=' . $locale;
+            } else {
+                $url .= '?locale=' . $locale;
+            }
         }
 
         return $url;
@@ -306,5 +311,29 @@ readonly class AlteredApiService
 
         return $cardToTrade;
 
+    }
+
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public function getEventsBySearch(SearchEventRequest $searchEventRequest, ?string $locale = null): array
+    {
+        $events = [];
+
+        $url = $this->buildUrl('/events/locator?' . $searchEventRequest->getUrlParameters(), $locale);
+
+        $response = $this->alteredHttpClient->request('GET', $url);
+
+        $content = $response->toArray();
+
+        if (count($content['hydra:member']) > 0) {
+            $events = array_merge($events, $content['hydra:member']);
+        }
+
+        return $events;
     }
 }

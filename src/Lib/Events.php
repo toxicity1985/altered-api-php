@@ -7,8 +7,11 @@ use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Toxicity\AlteredApi\Exception\InvalidSearchCardRequestException;
+use Toxicity\AlteredApi\Request\SearchEventRequest;
+use Toxicity\AlteredApi\Service\ValidatorService;
 
-class User extends AlteredApiResource
+class Events extends AlteredApiResource
 {
     /**
      * @throws TransportExceptionInterface
@@ -16,26 +19,15 @@ class User extends AlteredApiResource
      * @throws RedirectionExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws ClientExceptionInterface
+     * @throws InvalidSearchCardRequestException
      */
-    public static function me(string $token): array
+    public static function search(SearchEventRequest $searchEventRequest, ?string $locale = 'fr-fr'): array
     {
-        return self::build()->me($token);
-    }
+        $errors = ValidatorService::validateSearchRequest($searchEventRequest);
+        if(sizeof($errors) > 0) {
+            throw new InvalidSearchCardRequestException($errors);
+        }
 
-    /**
-     * @throws TransportExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws DecodingExceptionInterface
-     * @throws ClientExceptionInterface
-     */
-    public static function collection(string $token): array
-    {
-        return self::build()->getCollection($token);
-    }
-
-    public static function friendList(string $token): array
-    {
-        return Friends::all($token);
+        return self::build()->getEventsBySearch($searchEventRequest, $locale);
     }
 }

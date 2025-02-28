@@ -6,13 +6,21 @@ This library is based on the Altered.gg website. I develop it because I need it 
 
 ## Code Example
 ```php
-$card = \Toxicity\AlteredApi\Lib\Cards::byId('ALT_ALIZE_A_AX_35_C');
+<?php
+
+use Toxicity\AlteredApi\Lib\Cards;
+
+$card = Cards::byId('ALT_ALIZE_A_AX_35_C');
 echo $card['reference'];
 ```
 
 Some methods require authentication:
 ```php
-$friends = Toxicity\AlteredApi\Lib\Friends::all($token);
+<?php
+
+use Toxicity\AlteredApi\Lib\Friends;
+
+$friends = Friends::all($token);
 echo $friends[0]['id'];
 ```
 

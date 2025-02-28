@@ -3,11 +3,11 @@
 namespace Toxicity\AlteredApi\Service;
 
 use Symfony\Component\Validator\Validation;
-use Toxicity\AlteredApi\Request\SearchCardRequest;
+use Toxicity\AlteredApi\Contract\SearchRequestInterface;
 
 class ValidatorService
 {
-    static function validateSearchCardRequest(SearchCardRequest $searchCardRequest): array
+    static function validateSearchRequest(SearchRequestInterface $searchCardRequest): array
     {
         $errors = [];
         $violations = (Validation::createValidator())->validate($searchCardRequest);

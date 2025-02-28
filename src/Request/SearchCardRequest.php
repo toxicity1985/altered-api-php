@@ -3,13 +3,14 @@
 namespace Toxicity\AlteredApi\Request;
 
 use Symfony\Component\Validator\Constraints as Assert;
+use Toxicity\AlteredApi\Contract\SearchRequestInterface;
 use Toxicity\AlteredApi\Model\CardFactionConstant;
 use Toxicity\AlteredApi\Model\CardRarityConstant;
 use Toxicity\AlteredApi\Model\CardSetConstant;
 use Toxicity\AlteredApi\Model\CardSubTypeConstant;
 use Toxicity\AlteredApi\Model\CardTypeConstant;
 
-class SearchCardRequest
+class SearchCardRequest implements SearchRequestInterface
 {
     #[Assert\Choice(choices: CardSetConstant::ALL)]
     public array $cardSets = [];
