@@ -8,10 +8,12 @@ use Toxicity\AlteredApi\Command\AlteredSetCommand;
 use Toxicity\AlteredApi\Command\AlteredTokenCommand;
 use Toxicity\AlteredApi\Command\AlteredCardCommand;
 use Toxicity\AlteredApi\Command\AlteredUserCommand;
+use Toxicity\AlteredApi\Command\AlteredFactionCommand;
 
 $application = new Application();
 $application->add(new AlteredTokenCommand());
 $application->add(new AlteredSetCommand());
+$application->add(new AlteredFactionCommand());
 $application->add(new AlteredCardCommand());
 $application->add(new AlteredUserCommand());
 
