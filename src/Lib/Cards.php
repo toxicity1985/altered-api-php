@@ -20,9 +20,9 @@ class Cards extends AlteredApiResource
      * @throws DecodingExceptionInterface
      * @throws ClientExceptionInterface
      */
-    public static function byId(string $id, ?string $locale = 'fr-fr'): array
+    public static function byReference(string $reference, ?string $locale = 'fr-fr'): array
     {
-        return self::build()->getCardById($id, $locale);
+        return self::build()->getCardByReference($reference, $locale);
     }
 
     /**
@@ -32,9 +32,9 @@ class Cards extends AlteredApiResource
      * @throws DecodingExceptionInterface
      * @throws ClientExceptionInterface
      */
-    public static function alternateCardsById(string $id, ?string $locale = 'fr-fr'): array
+    public static function alternateCardsByReference(string $reference, ?string $locale = 'fr-fr'): array
     {
-        return self::build()->getAlternateCardsById($id, $locale);
+        return self::build()->getAlternateCardsByReference($reference, $locale);
     }
 
     /**

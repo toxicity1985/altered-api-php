@@ -48,9 +48,9 @@ readonly class AlteredApiService
      * @throws DecodingExceptionInterface
      * @throws ClientExceptionInterface
      */
-    public function getCardById(string $id, ?string $locale = null): array
+    public function getCardByReference(string $reference, ?string $locale = null): array
     {
-        $url = $this->buildUrl('/cards/' . $id, $locale);
+        $url = $this->buildUrl('/cards/' . $reference, $locale);
 
         $response = $this->alteredHttpClient->request('GET', $url);
         return $response->toArray();
@@ -97,9 +97,9 @@ readonly class AlteredApiService
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      */
-    public function getAlternateCardsById(string $id, ?string $locale = null): array
+    public function getAlternateCardsByReference(string $reference, ?string $locale = null): array
     {
-        $url = $this->buildUrl('/cards/' . $id . '/variants', $locale);
+        $url = $this->buildUrl('/cards/' . $reference . '/variants', $locale);
 
         $cards = [];
 

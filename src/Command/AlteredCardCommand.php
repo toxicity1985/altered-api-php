@@ -23,7 +23,7 @@ class AlteredCardCommand extends Command
 
     public function configure(): void
     {
-        $this->addArgument('id', InputArgument::REQUIRED, 'id');
+        $this->addArgument('reference', InputArgument::REQUIRED, 'reference');
     }
 
     /**
@@ -35,7 +35,8 @@ class AlteredCardCommand extends Command
      */
     public function execute(InputInterface $input, OutputInterface $output): int
     {
-        $output->writeln(json_encode(Cards::byId($input->getArgument('id'))));
+        $output->writeln(json_encode(Cards::byReference($input->getArgument('reference'))));
+        $output->writeln(json_encode(Cards::alternateCardsByReference($input->getArgument('reference'))));
 
         return Command::SUCCESS;
     }

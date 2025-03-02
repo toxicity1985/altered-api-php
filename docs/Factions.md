@@ -9,7 +9,7 @@ This class is used to get factions from altered website.
 
 use Toxicity\AlteredApi\Lib\Factions;
 
-$sets = Factions::all('fr-fr'');
+$factions = Factions::all('fr-fr'');
 ```
 
 ## Response
