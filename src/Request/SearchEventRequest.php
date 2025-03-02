@@ -27,9 +27,13 @@ class SearchEventRequest implements SearchRequestInterface
     #[Assert\Type('boolean')]
     public ?bool $mobilityReducedAccessibility = null;
 
+    #[Assert\Choice(['miles', 'meters'])]
+    public string $unit = 'miles';
+
     public function getUrlParameters(): string
     {
         $urlParameters = 'countryCode=' . $this->countryCode . '&country=' . $this->countryCode;
+        $urlParameters .= '&unit=' . $this->unit;
         if ($this->afterDate !== null) {
             $urlParameters .= '&startDateTime[after]=' . $this->afterDate->format('Y-m-d');
         }
