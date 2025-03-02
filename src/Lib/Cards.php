@@ -2,7 +2,6 @@
 
 namespace Toxicity\AlteredApi\Lib;
 
-use Symfony\Component\Validator\Validation;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -48,7 +47,7 @@ class Cards extends AlteredApiResource
      */
     public static function search(SearchCardRequest $searchCardRequest, ?string $locale = 'fr-fr'): array
     {
-        $errors = ValidatorService::validateSearchCardRequest($searchCardRequest);
+        $errors = ValidatorService::validateSearchRequest($searchCardRequest);
         if(sizeof($errors) > 0) {
             throw new InvalidSearchCardRequestException($errors);
         }
