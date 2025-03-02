@@ -1,4 +1,4 @@
-## Altered Api Php - Events
+## Altered Api Php - Cards
 
 This class is used to search for events based on country code and latitude.
 In response, you get the events based on the search and the shops related.

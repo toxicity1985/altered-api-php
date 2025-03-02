@@ -1,4 +1,4 @@
-## Altered Api Php - Sets
+## Altered Api Php - Factions
 
 This class is used to get factions from altered website.
 

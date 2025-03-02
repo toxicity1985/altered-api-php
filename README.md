@@ -39,3 +39,13 @@ composer require toxicity/altered-api-php
 
 ### If you don't have composer
 You can download it [here](https://getcomposer.org/download/).
+
+More explanation on available functionality:
+
+- Cards => https://github.com/toxicity1985/altered-api-php/blob/main/docs/Cards.md
+
+- Events => https://github.com/toxicity1985/altered-api-php/blob/main/docs/Events.md
+
+- Factions => https://github.com/toxicity1985/altered-api-php/blob/main/docs/Factions.md
+
+- Sets => https://github.com/toxicity1985/altered-api-php/blob/main/docs/Sets.md
