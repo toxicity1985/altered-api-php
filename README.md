@@ -10,7 +10,7 @@ This library is based on the Altered.gg website. I develop it because I need it 
 
 use Toxicity\AlteredApi\Lib\Cards;
 
-$card = Cards::byId('ALT_ALIZE_A_AX_35_C');
+$card = Cards::byReference('ALT_ALIZE_A_AX_35_C');
 echo $card['reference'];
 ```
 
