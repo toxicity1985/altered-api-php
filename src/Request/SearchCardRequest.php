@@ -23,8 +23,9 @@ class SearchCardRequest implements SearchRequestInterface
     #[Assert\Choice(choices: CardSubTypeConstant::ALL)]
     public array $subTypes = [];
     #[Assert\Type('boolean')]
-    public ?bool $altArt;
-    public ?string $name;
+    public ?bool $altArt = null;
+
+    public ?string $name = null;
 
     public function getUrlParameters(): string
     {
@@ -47,21 +48,21 @@ class SearchCardRequest implements SearchRequestInterface
                 $urlParameters .= '&rarity[]=' . $rarity;
             }
         }
-        if(sizeof($this->types) > 0) {
+        if (sizeof($this->types) > 0) {
             foreach ($this->types as $type) {
                 $urlParameters .= '&cardType[]=' . $type;
             }
         }
-        if(sizeof($this->subTypes) > 0) {
+        if (sizeof($this->subTypes) > 0) {
             foreach ($this->subTypes as $subType) {
                 $urlParameters .= '&cardSubTypes[]=' . $subType;
             }
         }
 
-        if($this->altArt !== null){
+        if ($this->altArt !== null) {
             $urlParameters .= '&altArt=true';
         }
 
-        return $urlParameters;
+        return str_starts_with($urlParameters, '&') ? substr($urlParameters, 1) : $urlParameters;
     }
 }

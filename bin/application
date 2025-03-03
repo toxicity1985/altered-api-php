@@ -1,14 +1,21 @@
 #!/usr/bin/env php
 <?php
 
-require __DIR__.'/../vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
+require_once "bootstrap.php";
 
 use Symfony\Component\Console\Application;
+use Toxicity\AlteredApi\Service\CardService;
 use Toxicity\AlteredApi\Command\AlteredSetCommand;
 use Toxicity\AlteredApi\Command\AlteredTokenCommand;
 use Toxicity\AlteredApi\Command\AlteredCardCommand;
 use Toxicity\AlteredApi\Command\AlteredUserCommand;
 use Toxicity\AlteredApi\Command\AlteredFactionCommand;
+use Toxicity\AlteredApi\Command\AlteredImportCardCommand;
+use Toxicity\AlteredApi\Service\FactionService;
+use Toxicity\AlteredApi\Builder\FactionBuilder;
+use Toxicity\AlteredApi\Service\SetService;
+use \Toxicity\AlteredApi\Builder\SetBuilder;
 
 $application = new Application();
 $application->add(new AlteredTokenCommand());
@@ -16,5 +23,10 @@ $application->add(new AlteredSetCommand());
 $application->add(new AlteredFactionCommand());
 $application->add(new AlteredCardCommand());
 $application->add(new AlteredUserCommand());
+$application->add(new AlteredImportCardCommand(
+    new FactionService(new FactionBuilder(), $entityManager),
+    new SetService(new SetBuilder(), $entityManager),
+    new CardService($entityManager)
+));
 
 $application->run();

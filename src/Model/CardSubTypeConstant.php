@@ -35,7 +35,10 @@ class CardSubTypeConstant
         self::SONG,
         self::SPIRIT,
         self::TITAN,
-        self::TRAINER
+        self::TRAINER,
+        self::SITE,
+        self::ILLUSION,
+        self::CONSTRUCTION
     ];
 
     public const ADVENTURER = 'ADVENTURER';
@@ -69,4 +72,7 @@ class CardSubTypeConstant
     public const SPIRIT = 'SPIRIT';
     public const TITAN = 'TITAN';
     public const TRAINER = 'TRAINER';
+    public const SITE = 'SITE';
+    public const ILLUSION = 'ILLUSION';
+    public const CONSTRUCTION = 'CONSTRUCTION';
 }

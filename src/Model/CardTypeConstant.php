@@ -12,7 +12,8 @@ class CardTypeConstant
         self::EXPEDITION_PERMANENT,
         self::LANDMARK_PERMANENT,
         self::PERMANENT,
-        self::TOKEN
+        self::TOKEN,
+        self::TOKEN_MANA
     ];
 
     public const HERO = 'HERO';
@@ -23,4 +24,6 @@ class CardTypeConstant
     public const TOKEN = 'TOKEN';
     public const EXPEDITION_PERMANENT = 'EXPEDITION_PERMANENT';
     public const LANDMARK_PERMANENT = 'LANDMARK_PERMANENT';
+
+    public const TOKEN_MANA = 'TOKEN_MANA';
 }

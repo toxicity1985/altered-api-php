@@ -21,7 +21,10 @@
         "ext-iconv": "*",
         "symfony/console": "^7.2",
         "symfony/http-client": "^7.2",
-        "symfony/validator": "^7.2"
+        "symfony/validator": "^7.2",
+        "doctrine/orm": "^3",
+        "doctrine/dbal": "^4",
+        "symfony/cache": "^7"
     },
     "require-dev": {
         "symfony/panther": "^2.2"

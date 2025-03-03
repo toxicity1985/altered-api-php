@@ -70,11 +70,10 @@ readonly class AlteredApiService
         $cards = [];
         $options = [];
 
-        $url = $this->buildUrl('/cards' . $searchCardRequest->getUrlParameters(), $locale);
-
+        $url = $this->buildUrl('/cards?' . $searchCardRequest->getUrlParameters(), $locale);
 
         while (!$empty) {
-            $response = $this->alteredHttpClient->request('GET', $url . '&itemsPerPage=36&order[reference]=ASC&page=' . $page . '&locale=' . $locale, $options);
+            $response = $this->alteredHttpClient->request('GET', $url . '&itemsPerPage=36&order[reference]=ASC&page=' . $page, $options);
 
             $content = $response->toArray();
 
