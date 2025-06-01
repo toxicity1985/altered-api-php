@@ -12,3 +12,5 @@
 .idea/*
 workspace.xml
 ###< phpstorm ###
+/community_database/
+/community_database/*
