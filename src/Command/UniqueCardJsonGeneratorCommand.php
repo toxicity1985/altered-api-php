@@ -77,7 +77,7 @@ class UniqueCardJsonGeneratorCommand extends Command
             'COREKS' => $this->setRepository->findOneByReference('COREKS'),
         ];
 
-        $directory = 'community_database/' . $inputSet . '/B/' . $inputFaction;
+        $directory = 'community_database/' . $inputSet . '/' . $inputFaction;
         $filesystem = new Filesystem();
         $filesystem->mkdir($directory);
 
@@ -98,8 +98,6 @@ class UniqueCardJsonGeneratorCommand extends Command
 
 
             foreach ($cards as $card) {
-                $explode = explode('_', $card->getReference());
-
                 $translatedCard = Cards::byReference($card->getReference(), $inputLocale);
 
                 $searchCardRequest = new SearchCardRequest();
@@ -110,7 +108,8 @@ class UniqueCardJsonGeneratorCommand extends Command
 
                 $output->writeln(sprintf('<info>%s</info>', $translatedCard['name'] . ' - ' . $card->getRarityString() . ' - ' . $card->getFaction()->getName()));
                 foreach (Cards::search($searchCardRequest, $inputLocale) as $data) {
-                    $directory = 'community_database/' . $inputSet . '/B/' . $data['mainFaction']['reference'] . '/' . $explode[4] . '/UNIQUE';
+                    $explode = explode('_', $data['reference']);
+                    $directory = 'community_database/' . $inputSet . '/' . $explode[3] . '/' . $explode[4];
                     $filesystem->mkdir($directory);
 
                     if ($filesystem->exists($directory . '/' . $data['reference'] . '.json')) {
