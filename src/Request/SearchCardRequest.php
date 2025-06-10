@@ -24,6 +24,14 @@ class SearchCardRequest implements SearchRequestInterface
     public array $subTypes = [];
     #[Assert\Type('boolean')]
     public ?bool $altArt = null;
+    #[Assert\Type('integer')]
+    public ?int $mountainPower = null;
+    #[Assert\Type('integer')]
+    public ?int $mainCost = null;
+    #[Assert\Type('integer')]
+    public ?int $recallCost = null;
+    #[Assert\Type('integer')]
+    public ?int $forestPower = null;
 
     public ?string $name = null;
 
@@ -37,6 +45,18 @@ class SearchCardRequest implements SearchRequestInterface
         }
         if ($this->name !== null) {
             $urlParameters .= '&translations.name=' . $this->name;
+        }
+        if ($this->mountainPower !== null) {
+            $urlParameters .= '&mountainPower[]=' . $this->mountainPower;
+        }
+        if ($this->forestPower !== null) {
+            $urlParameters .= '&forestPower[]=' . $this->forestPower;
+        }
+        if ($this->recallCost !== null) {
+            $urlParameters .= '&recallCost[]=' . $this->recallCost;
+        }
+        if ($this->mainCost !== null) {
+            $urlParameters .= '&mainCost[]=' . $this->mainCost;
         }
         if (sizeof($this->factions) > 0) {
             foreach ($this->factions as $faction) {

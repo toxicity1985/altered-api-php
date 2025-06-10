@@ -6,6 +6,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\RateLimiter\LimiterInterface;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\RateLimiter\Storage\InMemoryStorage;
+use Toxicity\AlteredApi\Entity\Card;
 use Toxicity\AlteredApi\Lib\Cards;
 use Toxicity\AlteredApi\Repository\CardRepository;
 use Toxicity\AlteredApi\Repository\FactionRepository;
@@ -75,6 +76,7 @@ class UniqueCardJsonGeneratorCommand extends Command
             'ALIZE' => $this->setRepository->findOneByReference('ALIZE'),
             'CORE' => $this->setRepository->findOneByReference('CORE'),
             'COREKS' => $this->setRepository->findOneByReference('COREKS'),
+            'BISE' => $this->setRepository->findOneByReference('BISE'),
         ];
 
         $directory = 'community_database/' . $inputSet . '/' . $inputFaction;
@@ -96,7 +98,6 @@ class UniqueCardJsonGeneratorCommand extends Command
                 continue;
             }
 
-
             foreach ($cards as $card) {
                 $translatedCard = Cards::byReference($card->getReference(), $inputLocale);
 
@@ -106,32 +107,86 @@ class UniqueCardJsonGeneratorCommand extends Command
                 $searchCardRequest->rarities = ['UNIQUE'];
                 $searchCardRequest->name = $translatedCard['name'];
 
-                $output->writeln(sprintf('<info>%s</info>', $translatedCard['name'] . ' - ' . $card->getRarityString() . ' - ' . $card->getFaction()->getName()));
-                foreach (Cards::search($searchCardRequest, $inputLocale) as $data) {
-                    $explode = explode('_', $data['reference']);
-                    $directory = 'community_database/' . $inputSet . '/' . $explode[3] . '/' . $explode[4];
-                    $filesystem->mkdir($directory);
+                for ($i = 0; $i <= 10; $i++) {
+                    $searchCardRequest->mainCost = $i;
 
-                    if ($filesystem->exists($directory . '/' . $data['reference'] . '.json')) {
-                        $output->writeln(sprintf('<info>%s exist</info>', $data['reference'] . '.json'));
+                    $remoteCards = Cards::search($searchCardRequest, $inputLocale);
+                    $counter = count($remoteCards);
+
+                    if ($counter === 0) {
                         continue;
+                    } else if ($counter < 1000) {
+                        $this->process($remoteCards, $card, $translatedCard, $inputLocale, $inputSet, $output, $filesystem);
                     }
 
-                    $dataCard = $this->getByReference($data['reference'], $inputLocale);
-                    $dataCard['translations'] = [];
-                    $t = Cards::byReference($data['reference']);
-                    ksort($t);
-                    $dataCard['translations']['fr-fr'] = $t;
-                    $fp = fopen($directory . '/' . $data['reference'] . '.json', 'w');
-                    ksort($dataCard);
-                    fwrite($fp, json_encode($dataCard, JSON_PRETTY_PRINT));
-                    fclose($fp);
+                    for ($j = 0; $j <= 10; $j++) {
+                        $searchCardRequest->recallCost = $j;
 
-                    $output->writeln(sprintf('<info>Process %s</info>', $data['reference']));
+                        $remoteCards = Cards::search($searchCardRequest, $inputLocale);
+                        $counter = count($remoteCards);
+                        if ($counter === 0) {
+                            continue;
+                        } else if ($counter < 1000) {
+                            $this->process($remoteCards, $card, $translatedCard, $inputLocale, $inputSet, $output, $filesystem);
+                        }
+
+                        for ($k = 0; $k <= 10; $k++) {
+                            $searchCardRequest->mountainPower = $k;
+
+                            $remoteCards = Cards::search($searchCardRequest, $inputLocale);
+                            $counter = count($remoteCards);
+                            if ($counter === 0) {
+                                continue;
+                            } else if ($counter < 1000) {
+                                $this->process($remoteCards, $card, $translatedCard, $inputLocale, $inputSet, $output, $filesystem);
+                            }
+
+                            for ($l = 0; $l <= 10; $l++) {
+                                $searchCardRequest->forestPower = $l;
+
+                                $remoteCards = Cards::search($searchCardRequest, $inputLocale);
+                                $counter = count($remoteCards);
+                                if ($counter === 0) {
+                                    continue;
+                                } else if ($counter < 1000) {
+                                    $this->process($remoteCards, $card, $translatedCard, $inputLocale, $inputSet, $output, $filesystem);
+                                }
+
+
+                            }
+                        }
+                    }
                 }
             }
         }
         return Command::SUCCESS;
+    }
+
+    private function process(array $cards, Card $card, array $translatedCard, string $locale, string $set, OutputInterface $output, Filesystem $filesystem): void
+    {
+        $output->writeln(sprintf('<info>%s</info>', $translatedCard['name'] . ' - ' . $card->getRarityString() . ' - ' . $card->getFaction()->getName()));
+        foreach ($cards as $data) {
+            $explode = explode('_', $data['reference']);
+            $directory = 'community_database/' . $set . '/' . $explode[3] . '/' . $explode[4];
+            $filesystem->mkdir($directory);
+
+            if ($filesystem->exists($directory . '/' . $data['reference'] . '.json')) {
+                $output->writeln(sprintf('<info>%s exist</info>', $data['reference'] . '.json'));
+                continue;
+            }
+
+            $dataCard = $this->getByReference($data['reference'], $locale);
+            $dataCard['translations'] = [];
+            $t = Cards::byReference($data['reference']);
+            ksort($t);
+            $dataCard['translations']['fr-fr'] = $t;
+            $fp = fopen($directory . '/' . $data['reference'] . '.json', 'w');
+            ksort($dataCard);
+            fwrite($fp, json_encode($dataCard, JSON_PRETTY_PRINT));
+            fclose($fp);
+
+            $output->writeln(sprintf('<info>Process %s</info>', $data['reference']));
+        }
     }
 
     private function getByReference(string $reference, string $locale = 'fr-fr'): array

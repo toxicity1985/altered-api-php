@@ -6,6 +6,9 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\RateLimiter\LimiterInterface;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
+use Symfony\Component\RateLimiter\Storage\InMemoryStorage;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -23,6 +26,8 @@ use Toxicity\AlteredApi\Service\SetService;
 #[AsCommand(name: 'altered:import:card', description: 'Get Altered Card')]
 class AlteredImportCardCommand extends Command
 {
+    private LimiterInterface $limiter;
+
     public function __construct(
         private readonly FactionService $factionService,
         private readonly SetService     $setService,
@@ -30,6 +35,15 @@ class AlteredImportCardCommand extends Command
     )
     {
         parent::__construct();
+
+        $rateLimiterFactory = new RateLimiterFactory([
+            'id' => 'login',
+            'policy' => 'fixed_window',
+            'limit' => 10,
+            'interval' => '10 seconds',
+        ], new InMemoryStorage());
+
+        $this->limiter = $rateLimiterFactory->create();
     }
 
     /**
@@ -53,7 +67,7 @@ class AlteredImportCardCommand extends Command
         foreach (Sets::all() as $data) {
             $set = $this->setService->buildFromData($data);
             $this->setService->save($set);
-            if (in_array($set->getReference(), ['CORE', 'COREKS', 'ALIZE'])) {
+            if (in_array($set->getReference(), ['BISE'])) {
                 $sets[] = $set;
             }
         }
@@ -65,7 +79,7 @@ class AlteredImportCardCommand extends Command
                 $searchCardRequest->factions = [$faction->getReference()];
 
                 foreach (Cards::search($searchCardRequest) as $data) {
-                    $dataCard = Cards::byReference($data['reference']);
+                    $dataCard = $this->getByReference($data['reference']);
                     $card = $this->cardService->buildFromData($dataCard);
                     $this->cardService->save($card);
                 }
@@ -74,5 +88,12 @@ class AlteredImportCardCommand extends Command
 
 
         return Command::SUCCESS;
+    }
+
+    private function getByReference(string $reference, string $locale = 'fr-fr'): array
+    {
+        $this->limiter->reserve(1)->wait();
+
+        return Cards::byReference($reference, $locale);
     }
 }
