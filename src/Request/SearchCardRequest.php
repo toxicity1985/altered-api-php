@@ -32,6 +32,8 @@ class SearchCardRequest implements SearchRequestInterface
     public ?int $recallCost = null;
     #[Assert\Type('integer')]
     public ?int $forestPower = null;
+    #[Assert\Type('integer')]
+    public ?int $oceanPower = null;
 
     public ?string $name = null;
 
@@ -57,6 +59,9 @@ class SearchCardRequest implements SearchRequestInterface
         }
         if ($this->mainCost !== null) {
             $urlParameters .= '&mainCost[]=' . $this->mainCost;
+        }
+        if ($this->oceanPower !== null) {
+            $urlParameters .= '&oceanPower[]=' . $this->oceanPower;
         }
         if (sizeof($this->factions) > 0) {
             foreach ($this->factions as $faction) {
