@@ -117,6 +117,7 @@ class UniqueCardJsonGeneratorCommand extends Command
                         continue;
                     } else if ($counter < 1000) {
                         $this->process($remoteCards, $card, $translatedCard, $inputLocale, $inputSet, $output, $filesystem);
+                        continue;
                     }
 
                     for ($j = 0; $j <= 10; $j++) {
@@ -128,6 +129,7 @@ class UniqueCardJsonGeneratorCommand extends Command
                             continue;
                         } else if ($counter < 1000) {
                             $this->process($remoteCards, $card, $translatedCard, $inputLocale, $inputSet, $output, $filesystem);
+                            continue;
                         }
 
                         for ($k = 0; $k <= 10; $k++) {
@@ -139,6 +141,7 @@ class UniqueCardJsonGeneratorCommand extends Command
                                 continue;
                             } else if ($counter < 1000) {
                                 $this->process($remoteCards, $card, $translatedCard, $inputLocale, $inputSet, $output, $filesystem);
+                                continue;
                             }
 
                             for ($l = 0; $l <= 10; $l++) {
@@ -150,9 +153,26 @@ class UniqueCardJsonGeneratorCommand extends Command
                                     continue;
                                 } else if ($counter < 1000) {
                                     $this->process($remoteCards, $card, $translatedCard, $inputLocale, $inputSet, $output, $filesystem);
+                                    continue;
                                 }
 
+                                for ($m = 0; $m <= 10; $m++) {
+                                    $searchCardRequest->oceanPower = $m;
 
+                                    $remoteCards = Cards::search($searchCardRequest, $inputLocale);
+                                    $counter = count($remoteCards);
+                                    if ($counter === 0) {
+                                        continue;
+                                    } else if ($counter < 1000) {
+                                        $this->process($remoteCards, $card, $translatedCard, $inputLocale, $inputSet, $output, $filesystem);
+                                        continue;
+                                    }
+
+
+                                    $output->writeln('more than 1000 results');
+
+
+                                }
                             }
                         }
                     }
