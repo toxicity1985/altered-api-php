@@ -2,6 +2,7 @@
 
 namespace Toxicity\AlteredApi\Command;
 
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\RateLimiter\LimiterInterface;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
@@ -56,6 +57,7 @@ class UniqueCardJsonGeneratorCommand extends Command
         $this->addArgument('set', InputArgument::REQUIRED, 'set');
         $this->addArgument('faction', InputArgument::REQUIRED, 'faction');
         $this->addArgument('locale', InputArgument::OPTIONAL, 'Locale', 'en-en');
+        $this->addArgument('force-refresh', InputArgument::OPTIONAL, 'Refresh', true);
 
     }
 
@@ -71,6 +73,7 @@ class UniqueCardJsonGeneratorCommand extends Command
         $inputLocale = $input->getArgument('locale');
         $inputSet = $input->getArgument('set');
         $inputFaction = $input->getArgument('faction');
+        $inputForceRefresh = (bool)$input->getArgument('force-refresh');
 
         $sets = [
             'ALIZE' => $this->setRepository->findOneByReference('ALIZE'),
@@ -116,7 +119,7 @@ class UniqueCardJsonGeneratorCommand extends Command
                     if ($counter === 0) {
                         continue;
                     } else if ($counter < 1000) {
-                        $this->process($remoteCards, $card, $translatedCard, $inputLocale, $inputSet, $output, $filesystem);
+                        $this->process($remoteCards, $card, $translatedCard, $inputLocale, $inputSet, $output, $filesystem, $inputForceRefresh);
                         continue;
                     }
 
@@ -128,7 +131,7 @@ class UniqueCardJsonGeneratorCommand extends Command
                         if ($counter === 0) {
                             continue;
                         } else if ($counter < 1000) {
-                            $this->process($remoteCards, $card, $translatedCard, $inputLocale, $inputSet, $output, $filesystem);
+                            $this->process($remoteCards, $card, $translatedCard, $inputLocale, $inputSet, $output, $filesystem, $inputForceRefresh);
                             continue;
                         }
 
@@ -140,7 +143,7 @@ class UniqueCardJsonGeneratorCommand extends Command
                             if ($counter === 0) {
                                 continue;
                             } else if ($counter < 1000) {
-                                $this->process($remoteCards, $card, $translatedCard, $inputLocale, $inputSet, $output, $filesystem);
+                                $this->process($remoteCards, $card, $translatedCard, $inputLocale, $inputSet, $output, $filesystem, $inputForceRefresh);
                                 continue;
                             }
 
@@ -152,7 +155,7 @@ class UniqueCardJsonGeneratorCommand extends Command
                                 if ($counter === 0) {
                                     continue;
                                 } else if ($counter < 1000) {
-                                    $this->process($remoteCards, $card, $translatedCard, $inputLocale, $inputSet, $output, $filesystem);
+                                    $this->process($remoteCards, $card, $translatedCard, $inputLocale, $inputSet, $output, $filesystem, $inputForceRefresh);
                                     continue;
                                 }
 
@@ -164,7 +167,7 @@ class UniqueCardJsonGeneratorCommand extends Command
                                     if ($counter === 0) {
                                         continue;
                                     } else if ($counter < 1000) {
-                                        $this->process($remoteCards, $card, $translatedCard, $inputLocale, $inputSet, $output, $filesystem);
+                                        $this->process($remoteCards, $card, $translatedCard, $inputLocale, $inputSet, $output, $filesystem, $inputForceRefresh);
                                         continue;
                                     }
 
@@ -182,7 +185,7 @@ class UniqueCardJsonGeneratorCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function process(array $cards, Card $card, array $translatedCard, string $locale, string $set, OutputInterface $output, Filesystem $filesystem): void
+    private function process(array $cards, Card $card, array $translatedCard, string $locale, string $set, OutputInterface $output, Filesystem $filesystem, bool $forceRefresh): void
     {
         $output->writeln(sprintf('<info>%s</info>', $translatedCard['name'] . ' - ' . $card->getRarityString() . ' - ' . $card->getFaction()->getName()));
         foreach ($cards as $data) {
@@ -190,7 +193,7 @@ class UniqueCardJsonGeneratorCommand extends Command
             $directory = 'community_database/' . $set . '/' . $explode[3] . '/' . $explode[4];
             $filesystem->mkdir($directory);
 
-            if ($filesystem->exists($directory . '/' . $data['reference'] . '.json')) {
+            if ($filesystem->exists($directory . '/' . $data['reference'] . '.json') && !$forceRefresh) {
                 $output->writeln(sprintf('<info>%s exist</info>', $data['reference'] . '.json'));
                 continue;
             }
@@ -202,7 +205,8 @@ class UniqueCardJsonGeneratorCommand extends Command
             $dataCard['translations']['fr-fr'] = $t;
             $fp = fopen($directory . '/' . $data['reference'] . '.json', 'w');
             ksort($dataCard);
-            fwrite($fp, json_encode($dataCard, JSON_PRETTY_PRINT));
+            fwrite($fp, pack("CCC", 0xef, 0xbb, 0xbf));
+            fwrite($fp, mb_convert_encoding(json_encode($dataCard, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), 'utf8'));
             fclose($fp);
 
             $output->writeln(sprintf('<info>Process %s</info>', $data['reference']));
@@ -216,3 +220,4 @@ class UniqueCardJsonGeneratorCommand extends Command
         return Cards::byReference($reference, $locale);
     }
 }
+
