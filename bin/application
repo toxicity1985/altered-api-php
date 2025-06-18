@@ -18,7 +18,6 @@ use Toxicity\AlteredApi\Service\SetService;
 use \Toxicity\AlteredApi\Builder\SetBuilder;
 use \Toxicity\AlteredApi\Command\UniqueCardJsonGeneratorCommand;
 use \Toxicity\AlteredApi\Command\AlteredMarketPlaceGeneratorCommand;
-use Toxicity\AlteredApi\Command\FIxFileCommand;
 
 $application = new Application();
 $application->add(new AlteredTokenCommand());
@@ -41,6 +40,4 @@ $application->add(new AlteredMarketPlaceGeneratorCommand(
     new \Toxicity\AlteredApi\Repository\SetRepository($entityManager),
     new \Toxicity\AlteredApi\Repository\CardRepository($entityManager)
 ));
-$application->add(new FIxFileCommand());
-
 $application->run();
