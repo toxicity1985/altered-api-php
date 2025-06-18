@@ -57,7 +57,7 @@ class UniqueCardJsonGeneratorCommand extends Command
         $this->addArgument('set', InputArgument::REQUIRED, 'set');
         $this->addArgument('faction', InputArgument::REQUIRED, 'faction');
         $this->addArgument('locale', InputArgument::OPTIONAL, 'Locale', 'en-en');
-        $this->addArgument('force-refresh', InputArgument::OPTIONAL, 'Refresh', true);
+        $this->addArgument('force-refresh', InputArgument::OPTIONAL, 'Refresh', false);
 
     }
 
@@ -93,8 +93,6 @@ class UniqueCardJsonGeneratorCommand extends Command
                 $cards = $this->cardRepository->findBy(['faction' => $dbFaction, 'set' => $sets[$inputSet], 'rarityString' => CardRarityConstant::RARE], ['name' => 'ASC']);
 
                 $start = true;
-
-
             }
 
             if ($start === false) {
@@ -107,7 +105,7 @@ class UniqueCardJsonGeneratorCommand extends Command
                 $searchCardRequest = new SearchCardRequest();
                 $searchCardRequest->cardSets = [$card->getSet()->getReference()];
                 $searchCardRequest->factions = [$card->getFaction()->getReference()];
-                $searchCardRequest->rarities = ['UNIQUE'];
+                $searchCardRequest->rarities = ['RARE', 'COMMON'];
                 $searchCardRequest->name = $translatedCard['name'];
 
                 for ($i = 0; $i <= 10; $i++) {
@@ -201,11 +199,9 @@ class UniqueCardJsonGeneratorCommand extends Command
             $dataCard = $this->getByReference($data['reference'], $locale);
             $dataCard['translations'] = [];
             $t = Cards::byReference($data['reference']);
-            ksort($t);
             $dataCard['translations']['fr-fr'] = $t;
             $fp = fopen($directory . '/' . $data['reference'] . '.json', 'w');
-            ksort($dataCard);
-            fwrite($fp, pack("CCC", 0xef, 0xbb, 0xbf));
+            $dataCard = self::orderRecursivelyByKey($dataCard);
             fwrite($fp, mb_convert_encoding(json_encode($dataCard, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), 'utf8'));
             fclose($fp);
 
@@ -219,5 +215,19 @@ class UniqueCardJsonGeneratorCommand extends Command
 
         return Cards::byReference($reference, $locale);
     }
+
+    private function orderRecursivelyByKey(array $data): array
+    {
+        ksort($data);
+
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                $data[$key] = self::orderRecursivelyByKey($value);
+            }
+        }
+
+        return $data;
+    }
+
 }
 

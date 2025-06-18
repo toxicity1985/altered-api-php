@@ -45,13 +45,43 @@ class Cards extends AlteredApiResource
      * @throws ClientExceptionInterface
      * @throws InvalidSearchCardRequestException
      */
-    public static function search(SearchCardRequest $searchCardRequest, ?string $locale = 'fr-fr'): array
+    public static function search(SearchCardRequest $searchCardRequest, ?string $locale = 'fr-fr', ?string $token = null): array
     {
         $errors = ValidatorService::validateSearchRequest($searchCardRequest);
         if(sizeof($errors) > 0) {
             throw new InvalidSearchCardRequestException($errors);
         }
 
-        return self::build()->getCardsBySearch($searchCardRequest, $locale);
+        return self::build()->getCardsBySearch($searchCardRequest, $locale, $token);
+    }
+
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     * @throws InvalidSearchCardRequestException
+     */
+    public static function stats(SearchCardRequest $searchCardRequest, string $token, ?string $locale = 'fr-fr'): array
+    {
+        $errors = ValidatorService::validateSearchRequest($searchCardRequest);
+        if(sizeof($errors) > 0) {
+            throw new InvalidSearchCardRequestException($errors);
+        }
+
+        return self::build()->getCardStatsBySearch($searchCardRequest, $token, $locale);
+    }
+
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public static function offers(string $reference, string $token, ?string $locale = 'fr-fr'): array
+    {
+        return self::build()->getCardOffersByReference($reference, $token, $locale);
     }
 }

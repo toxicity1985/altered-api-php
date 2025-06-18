@@ -7,8 +7,14 @@ use Toxicity\AlteredApi\Service\AlteredApiService;
 
 abstract class AlteredApiResource
 {
+    private static ?AlteredApiService $_instance = null;
+
     static function build(): AlteredApiService
     {
-        return new AlteredApiService(new AlteredHttpClient());
+        if (is_null(self::$_instance)) {
+            self::$_instance = new AlteredApiService(new AlteredHttpClient());
+        }
+
+        return self::$_instance;
     }
 }
