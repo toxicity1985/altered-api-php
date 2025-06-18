@@ -34,8 +34,9 @@ class SearchCardRequest implements SearchRequestInterface
     public ?int $forestPower = null;
     #[Assert\Type('integer')]
     public ?int $oceanPower = null;
-
     public ?string $name = null;
+    #[Assert\Type('boolean')]
+    public ?bool $inSale = null;
 
     public function getUrlParameters(): string
     {
@@ -85,7 +86,13 @@ class SearchCardRequest implements SearchRequestInterface
         }
 
         if ($this->altArt !== null) {
-            $urlParameters .= '&altArt=true';
+            $urlParameters .= '&altArt=';
+            $urlParameters .=  $this->altArt ? 'true'  : false;
+        }
+
+        if ($this->inSale !== null) {
+            $urlParameters .= '&inSale=';
+            $urlParameters .= $this->inSale ? 'true'  : false;
         }
 
         return str_starts_with($urlParameters, '&') ? substr($urlParameters, 1) : $urlParameters;

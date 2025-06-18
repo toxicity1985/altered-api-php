@@ -10,3 +10,10 @@
 
 /community_database/
 /community_database/*
+/altered_marketplace/
+/altered_marketplace/*
+/tmp/
+/.idea/php.xml
+/.idea/symfony2.xml
+/.idea/vcs.xml
+/.idea/workspace.xml

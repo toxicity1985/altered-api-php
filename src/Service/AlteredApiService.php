@@ -63,12 +63,17 @@ readonly class AlteredApiService
      * @throws DecodingExceptionInterface
      * @throws ClientExceptionInterface
      */
-    public function getCardsBySearch(SearchCardRequest $searchCardRequest, ?string $locale = 'fr-fr'): array
+    public function getCardsBySearch(SearchCardRequest $searchCardRequest, ?string $locale = 'fr-fr', ?string $token = null): array
     {
         $page = 1;
         $empty = false;
         $cards = [];
-        $options = [];
+        if($token) {
+            $options = ['headers' => ['Authorization' => 'Bearer ' . $token]];
+        }
+        else {
+            $options = [];            
+        }
 
         $url = $this->buildUrl('/cards?' . $searchCardRequest->getUrlParameters(), $locale);
 
@@ -87,6 +92,43 @@ readonly class AlteredApiService
         }
 
         return $cards;
+    }
+
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     */
+    public function getCardStatsBySearch(SearchCardRequest $searchCardRequest, string $token, ?string $locale = 'fr-fr'): array
+    {
+        $page = 1;
+        $empty = false;
+        $stats = [];
+
+        $limiter = RateLimiterService::create(15);
+
+        $options = ['headers' => ['Authorization' => 'Bearer ' . $token]];
+
+        $url = $this->buildUrl('/cards/stats?itemsPerPage=36&' . $searchCardRequest->getUrlParameters(), $locale);
+
+        sleep('5');
+
+        while (!$empty) {
+            $response = $this->alteredHttpClient->request('GET', $url . '&page=' . $page, $options, $limiter);
+
+            $content = $response->toArray();
+
+            if (count($content['hydra:member']) > 0) {
+                $stats = array_merge($stats, $content['hydra:member']);
+                $page++;
+            } else {
+                $empty = true;
+            }
+        }
+
+        return $stats;
     }
 
     /**
@@ -111,6 +153,35 @@ readonly class AlteredApiService
         }
 
         return $cards;
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     */
+    public function getCardOffersByReference(string $reference, string $token, ?string $locale = null): array
+    {
+        $page = 1;
+        $empty = false;
+        $offers = [];
+
+        while (!$empty) {
+            $response = $this->alteredHttpClient->request('GET', '/cards/'.$reference.'/offers/?itemsPerPage=100&page=' . $page, ['headers' => ['Authorization' => 'Bearer ' . $token]]);
+
+            $content = $response->toArray();
+
+            if (count($content['hydra:member']) > 0) {
+                $offers = array_merge($offers, $content['hydra:member']);
+                $page++;
+            } else {
+                $empty = true;
+            }
+        }
+
+        return $offers;
     }
 
     /**

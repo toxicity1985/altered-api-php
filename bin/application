@@ -17,6 +17,7 @@ use Toxicity\AlteredApi\Builder\FactionBuilder;
 use Toxicity\AlteredApi\Service\SetService;
 use \Toxicity\AlteredApi\Builder\SetBuilder;
 use \Toxicity\AlteredApi\Command\UniqueCardJsonGeneratorCommand;
+use \Toxicity\AlteredApi\Command\AlteredMarketPlaceGeneratorCommand;
 
 $application = new Application();
 $application->add(new AlteredTokenCommand());
@@ -30,6 +31,11 @@ $application->add(new AlteredImportCardCommand(
     new CardService($entityManager)
 ));
 $application->add(new UniqueCardJsonGeneratorCommand(
+    new \Toxicity\AlteredApi\Repository\FactionRepository($entityManager),
+    new \Toxicity\AlteredApi\Repository\SetRepository($entityManager),
+    new \Toxicity\AlteredApi\Repository\CardRepository($entityManager)
+));
+$application->add(new AlteredMarketPlaceGeneratorCommand(
     new \Toxicity\AlteredApi\Repository\FactionRepository($entityManager),
     new \Toxicity\AlteredApi\Repository\SetRepository($entityManager),
     new \Toxicity\AlteredApi\Repository\CardRepository($entityManager)
