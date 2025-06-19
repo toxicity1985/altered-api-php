@@ -20,7 +20,12 @@ if [ $? -eq 0 ]; then
     git push -u origin "update-$BRANCH_NAME"
 
     # 6. Créer la pull request
-    gh pr create --title "Mise à jour du $BRANCH_NAME" --body "Pull request générée automatiquement après exécution du script." --base main
+     PR_URL=$(gh pr create \
+            --title "Mise à jour du $(date +"%d/%m/%Y")" \
+            --body "Pull request générée automatiquement après exécution du script." \
+            --base main)
+
+    gh pr merge --auto --rebase "$PR_URL"
 
 else
     echo "Le script a échoué. Aucune opération Git n'a été effectuée."
