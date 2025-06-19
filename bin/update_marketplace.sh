@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 1. Exécuter le script
-php bin/application app:market-place:json BISE
+php bin/application app:market-place:json
 
 # 2. Vérifier que le script s'est bien terminé
 if [ $? -eq 0 ]; then
