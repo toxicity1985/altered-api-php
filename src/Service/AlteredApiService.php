@@ -103,19 +103,32 @@ readonly class AlteredApiService
      */
     public function getCardStatsBySearch(SearchCardRequest $searchCardRequest, string $token, ?string $locale = 'fr-fr'): array
     {
+        $page = 1;
+        $empty = false;
+        $stats = [];
+
+        $limiter = RateLimiterService::create(15);
+
         $options = ['headers' => ['Authorization' => 'Bearer ' . $token]];
 
-        $url = $this->buildUrl('/cards/stats?' . $searchCardRequest->getUrlParameters(), $locale);
+        $url = $this->buildUrl('/cards/stats?itemsPerPage=100&' . $searchCardRequest->getUrlParameters(), $locale);
 
-        $response = $this->alteredHttpClient->request('GET', $url , $options);
+        sleep('5');
 
-        $content = $response->toArray();
+        while (!$empty) {
+            $response = $this->alteredHttpClient->request('GET', $url . '&itemsPerPage=100&page=' . $page, $options, $limiter);
 
-        if (count($content['hydra:member']) > 0) {
-            return $content['hydra:member'];
+            $content = $response->toArray();
+
+            if (count($content['hydra:member']) > 0) {
+                $stats = array_merge($stats, $content['hydra:member']);
+                $page++;
+            } else {
+                $empty = true;
+            }
         }
 
-        return [];
+        return $stats;
     }
 
     /**
@@ -155,8 +168,10 @@ readonly class AlteredApiService
         $empty = false;
         $offers = [];
 
+        $limiter = RateLimiterService::create(20);
+
         while (!$empty) {
-            $response = $this->alteredHttpClient->request('GET', '/cards/'.$reference.'/offers/?itemsPerPage=100&page=' . $page, ['headers' => ['Authorization' => 'Bearer ' . $token]], true);
+            $response = $this->alteredHttpClient->request('GET', '/cards/'.$reference.'/offers/?itemsPerPage=100&page=' . $page, ['headers' => ['Authorization' => 'Bearer ' . $token]], $limiter);
 
             $content = $response->toArray();
             if (count($content['hydra:member']) > 0) {

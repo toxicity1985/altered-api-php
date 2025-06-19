@@ -40,4 +40,5 @@ $application->add(new AlteredMarketPlaceGeneratorCommand(
     new \Toxicity\AlteredApi\Repository\SetRepository($entityManager),
     new \Toxicity\AlteredApi\Repository\CardRepository($entityManager)
 ));
+
 $application->run();

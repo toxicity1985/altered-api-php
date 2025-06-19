@@ -81,6 +81,102 @@ class AlteredMarketPlaceGeneratorCommand extends Command
             $sets = [$inputSet => $sets[$inputSet]];
         }
 
+        $this->processCardStats($sets, $inputLocale, $output);
+        //$this->processOffers($sets, $inputLocale, $output);
+
+        return Command::SUCCESS;
+    }
+
+    private function processCardStats(array $sets, string $inputLocale, OutputInterface $output): void
+    {
+        foreach ($sets as $keySet => $set) {
+            foreach (CardFactionConstant::ALL as $value) {
+                $directory = 'altered_marketplace/' . $keySet . '/' . $value;
+                $filesystem = new Filesystem();
+                $filesystem->mkdir($directory);
+
+                $searchCardRequest = new SearchCardRequest();
+                $searchCardRequest->cardSets = [$keySet];
+                $searchCardRequest->factions = [$value];
+                $searchCardRequest->rarities = [CardRarityConstant::UNIQUE];
+                $searchCardRequest->inSale = true;
+
+                for ($i = 0; $i <= 10; $i++) {
+                    $searchCardRequest->mainCost = $i;
+
+                    $remoteStats = Cards::stats($searchCardRequest, $this->refreshAccessToken(), $inputLocale);
+                    $counter = count($remoteStats);
+
+                    if ($counter === 0) {
+                        continue;
+                    } else if ($counter < 1000) {
+                        $this->processStats($remoteStats, $inputLocale, $keySet, $output, $filesystem);
+                        continue;
+                    }
+
+                    for ($j = 0; $j <= 10; $j++) {
+                        $searchCardRequest->recallCost = $j;
+
+                        $remoteStats = Cards::stats($searchCardRequest, $this->refreshAccessToken(), $inputLocale);;
+                        $counter = count($remoteStats);
+                        if ($counter === 0) {
+                            continue;
+                        } else if ($counter < 1000) {
+                            $this->processStats($remoteStats, $inputLocale, $keySet, $output, $filesystem);
+                            continue;
+                        }
+
+                        for ($k = 0; $k <= 10; $k++) {
+                            $searchCardRequest->mountainPower = $k;
+
+                            $remoteStats = Cards::stats($searchCardRequest, $this->refreshAccessToken(), $inputLocale);
+                            $counter = count($remoteStats);
+                            if ($counter === 0) {
+                                continue;
+                            } else if ($counter < 1000) {
+                                $this->processStats($remoteStats, $inputLocale, $keySet, $output, $filesystem);
+                                continue;
+                            }
+
+                            for ($l = 0; $l <= 10; $l++) {
+                                $searchCardRequest->forestPower = $l;
+
+                                $remoteStats = Cards::stats($searchCardRequest, $this->refreshAccessToken(), $inputLocale);
+                                $counter = count($remoteStats);
+                                if ($counter === 0) {
+                                    continue;
+                                } else if ($counter < 1000) {
+                                    $this->processStats($remoteStats, $inputLocale, $keySet, $output, $filesystem);
+                                    continue;
+                                }
+
+                                for ($m = 0; $m <= 10; $m++) {
+                                    $searchCardRequest->oceanPower = $m;
+
+                                    $remoteStats = Cards::stats($searchCardRequest, $this->refreshAccessToken(), $inputLocale);
+                                    $counter = count($remoteStats);
+                                    if ($counter === 0) {
+                                        continue;
+                                    } else if ($counter < 1000) {
+                                        $this->processStats($remoteStats, $inputLocale, $keySet, $output, $filesystem);
+                                        continue;
+                                    }
+
+
+                                    $output->writeln('more than 1000 results');
+
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private function processOffers(array $sets, string $inputLocale, OutputInterface $output): void
+    {
         foreach ($sets as $keySet => $set) {
             foreach (CardFactionConstant::ALL as $value) {
                 $directory = 'altered_marketplace/' . $keySet . '/' . $value;
@@ -98,6 +194,10 @@ class AlteredMarketPlaceGeneratorCommand extends Command
 
                     $remoteCards = Cards::search($searchCardRequest, $inputLocale, $this->refreshAccessToken());
                     $counter = count($remoteCards);
+
+                    if($counter === 100) {
+                        die();
+                    }
 
                     if ($counter === 0) {
                         continue;
@@ -146,97 +246,6 @@ class AlteredMarketPlaceGeneratorCommand extends Command
                                     $searchCardRequest->oceanPower = $m;
 
                                     $remoteCards = Cards::search($searchCardRequest, $inputLocale, $this->refreshAccessToken());
-                                    $counter = count($remoteCards);
-                                    if ($counter === 0) {
-                                        continue;
-                                    } else if ($counter < 1000) {
-                                        $this->process($remoteCards, $inputLocale, $keySet, $output, $filesystem);
-                                        continue;
-                                    }
-
-
-                                    $output->writeln('more than 1000 results');
-
-
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return Command::SUCCESS;
-    }
-
-
-    private function processForUnique(array $sets, string $inputLocale, OutputInterface $output, \DateTime $start): void
-    {
-        foreach ($sets as $keySet => $set) {
-            foreach (CardFactionConstant::ALL as $value) {
-                $directory = 'altered_marketplace/' . $keySet . '/' . $value;
-                $filesystem = new Filesystem();
-                $filesystem->mkdir($directory);
-
-                $searchCardRequest = new SearchCardRequest();
-                $searchCardRequest->cardSets = [$keySet];
-                $searchCardRequest->factions = [$value];
-                $searchCardRequest->rarities = [CardRarityConstant::UNIQUE];
-                $searchCardRequest->inSale = true;
-
-                for ($i = 0; $i <= 10; $i++) {
-                    $searchCardRequest->mainCost = $i;
-
-                    $remoteCards = Cards::stats($searchCardRequest, $inputLocale);
-                    $counter = count($remoteCards);
-
-                    if ($counter === 0) {
-                        continue;
-                    } else if ($counter < 1000) {
-                        $this->process($remoteCards, $inputLocale, $keySet, $output, $filesystem);
-                        continue;
-                    }
-
-                    for ($j = 0; $j <= 10; $j++) {
-                        $searchCardRequest->recallCost = $j;
-
-                        $remoteCards = Cards::stats($searchCardRequest, $inputToken, $inputLocale);;
-                        $counter = count($remoteCards);
-                        if ($counter === 0) {
-                            continue;
-                        } else if ($counter < 1000) {
-                            $this->process($remoteCards, $inputLocale, $keySet, $output, $filesystem);
-                            continue;
-                        }
-
-                        for ($k = 0; $k <= 10; $k++) {
-                            $searchCardRequest->mountainPower = $k;
-
-                            $remoteCards = Cards::stats($searchCardRequest, $inputToken, $inputLocale);
-                            $counter = count($remoteCards);
-                            if ($counter === 0) {
-                                continue;
-                            } else if ($counter < 1000) {
-                                $this->process($remoteCards, $inputLocale, $keySet, $output, $filesystem);
-                                continue;
-                            }
-
-                            for ($l = 0; $l <= 10; $l++) {
-                                $searchCardRequest->forestPower = $l;
-
-                                $remoteCards = Cards::stats($searchCardRequest, $inputToken, $inputLocale);
-                                $counter = count($remoteCards);
-                                if ($counter === 0) {
-                                    continue;
-                                } else if ($counter < 1000) {
-                                    $this->process($remoteCards, $inputLocale, $keySet, $output, $filesystem);
-                                    continue;
-                                }
-
-                                for ($m = 0; $m <= 10; $m++) {
-                                    $searchCardRequest->oceanPower = $m;
-
-                                    $remoteCards = Cards::stats($searchCardRequest, $inputToken, $inputLocale);
                                     $counter = count($remoteCards);
                                     if ($counter === 0) {
                                         continue;
@@ -313,6 +322,73 @@ class AlteredMarketPlaceGeneratorCommand extends Command
         }
     }
 
+    private function processStats(array $stats, string $locale, string $set, OutputInterface $output, Filesystem $filesystem): void
+    {
+        $token = $this->refreshAccessToken();
+
+        foreach ($stats as $data) {
+            $array = explode('/', $data['@id']);
+            $reference = array_pop($array);
+
+            $explode = explode('_', $reference);
+            $databaseDirectory = 'community_database/' . $set . '/' . $explode[3] . '/' . $explode[4];
+            $directory = 'altered_marketplace/' . $set . '/' . $explode[3] . '/' . $explode[4];
+            $filesystem->mkdir($directory);
+            $filesystem->mkdir($databaseDirectory);
+
+            if ($filesystem->exists($directory . '/' . $reference . '.json')) {
+                $output->writeln(sprintf('<info>%s offer exist, erase and replace value</info>', $reference . '.json'));
+
+                $json = file_get_contents($directory . '/' . $reference . '.json');
+                $json = json_decode($json, true);
+
+                if($json[0]['price'] === $json[0]['convertedPrice']) {
+                    $json[0]['price'] = $data['lowerPrice'];
+                    $json[0]['convertedPrice'] = $data['lowerPrice'];
+                    $json[0]['updated'] = (new \DateTime())->format('Y-m-d H:i:s');
+
+                    $fp = fopen($directory . '/' . $reference . '.json', 'w');
+                    $dataCard = self::orderRecursivelyByKey($json);
+                    fwrite($fp, mb_convert_encoding(json_encode($dataCard, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), 'utf8'));
+                    fclose($fp);
+                }
+            }
+            else {
+
+                if ($filesystem->exists($databaseDirectory . '/' . $reference . '.json')) {
+                    $output->writeln(sprintf('<info>%s exist</info>', $reference . '.json'));
+                } else {
+                    $dataCard = $this->getByReference($reference, $locale);
+                    $dataCard['translations'] = [];
+                    $t = Cards::byReference($reference);
+                    $dataCard['translations']['fr-fr'] = $t;
+                    $fp = fopen($databaseDirectory . '/' . $reference . '.json', 'w');
+                    $dataCard = self::orderRecursivelyByKey($dataCard);
+                    fwrite($fp, mb_convert_encoding(json_encode($dataCard, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), 'utf8'));
+                    fclose($fp);
+
+                    $output->writeln(sprintf('<info>Process %s</info>', $reference));
+                }
+
+                $offers = Cards::offers($reference, $token);
+
+                if(count($offers) > 0) {
+                    $offers[0]['updated'] = null;
+                    $offers[0]['created'] = (new \DateTime())->format('Y-m-d H:i:s');
+                    $fp = fopen($directory . '/' . $reference . '.json', 'w');
+                    $offers = self::orderRecursivelyByKey($offers);
+                    fwrite($fp, mb_convert_encoding(json_encode($offers, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), 'utf8'));
+                    fclose($fp);
+
+                    $output->writeln(sprintf('<info>Process %s</info>', $reference));
+                }
+                else {
+                    $output->writeln(sprintf('<info>No offers for %s</info>', $reference));
+                }
+            }
+        }
+    }
+
     private function getByReference(string $reference, string $locale = 'fr-fr'): array
     {
         $this->limiter->reserve(1)->wait();
@@ -334,7 +410,7 @@ class AlteredMarketPlaceGeneratorCommand extends Command
     }
 
 
-    public function refreshAccessToken(): ?string
+    public function refreshAccessToken(?OutputInterface $output = null): ?string
     {
         $cookiesFile = 'tmp/cookies.json';
         $accessTokenFile = 'tmp/access_token.txt';
@@ -374,12 +450,12 @@ class AlteredMarketPlaceGeneratorCommand extends Command
         }
 
         $sessionResponse = json_decode($response, true);
-        echo "Session Response:\n";
-        print_r($sessionResponse);
+        $output?->writeln("Session Response:");
+        $output?->writeln(json_encode($sessionResponse));
 
         if (!empty($http_response_header)) {
-            echo "Cookies:\n";
-            print_r($http_response_header);
+            $output?->writeln("Cookies:");
+            $output?->writeln(json_encode($http_response_header));
         }
 
         if (!empty($sessionResponse['accessToken']) && !empty($sessionResponse['expires'])) {
