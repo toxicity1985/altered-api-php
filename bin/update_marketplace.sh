@@ -27,6 +27,10 @@ if [ $? -eq 0 ]; then
 
     gh pr merge --auto --rebase "$PR_URL"
 
+    git checkout main
+
+    git pull
+
 else
     echo "Le script a échoué. Aucune opération Git n'a été effectuée."
 fi
