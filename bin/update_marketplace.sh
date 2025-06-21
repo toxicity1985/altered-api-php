@@ -29,7 +29,8 @@ if [ $? -eq 0 ]; then
      PR_URL=$(gh pr create \
             --title "Mise à jour du $(date +"%d/%m/%Y")" \
             --body "Pull request générée automatiquement après exécution du script." \
-            --base main)
+            --base main \
+            --json url --jq .url)
 
     gh pr merge --auto --rebase "$PR_URL"
 
