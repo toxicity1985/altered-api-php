@@ -340,7 +340,15 @@ class AlteredMarketPlaceGeneratorCommand extends Command
 
         $limiter = RateLimiterService::create(2,2);
 
+        $counter = 0;
+
         foreach ($stats as $data) {
+
+            if($counter === 100) {
+                $counter = 0;
+                $token = $this->refreshAccessToken();
+            }
+
             $array = explode('/', $data['@id']);
             $reference = array_pop($array);
 
@@ -403,6 +411,7 @@ class AlteredMarketPlaceGeneratorCommand extends Command
                     //$output->writeln(sprintf('<info>No offers for %s</info>', $reference));
                 }
             }
+            $counter++;
         }
     }
 

@@ -107,13 +107,13 @@ readonly class AlteredApiService
         $empty = false;
         $stats = [];
 
-        $limiter = RateLimiterService::create(15);
+        sleep(5);
+
+        $limiter = RateLimiterService::create(20);
 
         $options = ['headers' => ['Authorization' => 'Bearer ' . $token]];
 
         $url = $this->buildUrl('/cards/stats?itemsPerPage=36&' . $searchCardRequest->getUrlParameters(), $locale);
-
-        sleep('5');
 
         while (!$empty) {
             $response = $this->alteredHttpClient->request('GET', $url . '&page=' . $page, $options, $limiter);
