@@ -55,6 +55,7 @@ class AlteredMarketPlaceGeneratorCommand extends Command
     public function configure(): void
     {
         $this->addArgument('set', InputArgument::OPTIONAL, 'set', null);
+        $this->addArgument('faction', InputArgument::OPTIONAL, 'faction', null);
         $this->addArgument('locale', InputArgument::OPTIONAL, 'Locale', 'en-en');
     }
 
@@ -70,6 +71,7 @@ class AlteredMarketPlaceGeneratorCommand extends Command
         $this->start = new \DateTime();
         $inputLocale = $input->getArgument('locale');
         $inputSet = $input->getArgument('set');
+        $inputFaction = $input->getArgument('faction');
 
         $sets = [
             'ALIZE' => $this->setRepository->findOneByReference('ALIZE'),
@@ -82,16 +84,21 @@ class AlteredMarketPlaceGeneratorCommand extends Command
             $sets = [$inputSet => $sets[$inputSet]];
         }
 
-        $this->processCardStats($sets, $inputLocale, $output);
+        $factions = CardFactionConstant::ALL;
+        if($inputFaction) {
+            $factions = [$inputFaction];
+        }
+
+        $this->processCardStats($sets, $factions, $inputLocale, $output);
         //$this->processOffers($sets, $inputLocale, $output);
 
         return Command::SUCCESS;
     }
 
-    private function processCardStats(array $sets, string $inputLocale, OutputInterface $output): void
+    private function processCardStats(array $sets, array $factions, string $inputLocale, OutputInterface $output): void
     {
         foreach ($sets as $keySet => $set) {
-            foreach (CardFactionConstant::ALL as $value) {
+            foreach ($factions as $value) {
                 $directory = 'altered_marketplace/' . $keySet . '/' . $value;
                 $filesystem = new Filesystem();
                 $filesystem->mkdir($directory);
