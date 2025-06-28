@@ -26,7 +26,7 @@ if [ $? -eq 0 ]; then
     git push -u origin "update-$BRANCH_NAME"
 
     # 6. Créer la pull request
-     PR_URL=$(gh pr create \
+     PR_OUTPUT=$(gh pr create \
             --title "Mise à jour du $(date +"%d/%m/%Y")" \
             --body "Pull request générée automatiquement après exécution du script." \
             --base main)
