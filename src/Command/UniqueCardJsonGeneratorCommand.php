@@ -54,11 +54,10 @@ class UniqueCardJsonGeneratorCommand extends Command
 
     public function configure(): void
     {
-        $this->addArgument('set', InputArgument::REQUIRED, 'set');
-        $this->addArgument('faction', InputArgument::REQUIRED, 'faction');
+        $this->addArgument('set', InputArgument::OPTIONAL, 'set');
+        $this->addArgument('faction', InputArgument::OPTIONAL, 'faction');
         $this->addArgument('locale', InputArgument::OPTIONAL, 'Locale', 'en-en');
         $this->addArgument('force-refresh', InputArgument::OPTIONAL, 'Refresh', false);
-
     }
 
     /**
@@ -82,50 +81,50 @@ class UniqueCardJsonGeneratorCommand extends Command
             'BISE' => $this->setRepository->findOneByReference('BISE'),
         ];
 
+        if(array_key_exists($inputSet, $sets)) {
+            $sets = [$inputSet => $sets[$inputSet]];
+        }
+        if(!$inputFaction) {
+            $inputFaction = CardFactionConstant::ALL[0];
+        }
+
+        var_dump(count($sets));
+
         $directory = 'community_database/' . $inputSet . '/' . $inputFaction;
         $filesystem = new Filesystem();
         $filesystem->mkdir($directory);
 
         $start = false;
-        foreach (CardFactionConstant::ALL as $key => $value) {
-            if ($inputFaction === $value || $start) {
-                $dbFaction = $this->factionRepository->findOneByReference($value);
-                $cards = $this->cardRepository->findBy(['faction' => $dbFaction, 'set' => $sets[$inputSet], 'rarityString' => CardRarityConstant::RARE], ['name' => 'ASC']);
+        foreach ($sets as $inputSet => $set) {
+            foreach (CardFactionConstant::ALL as $key => $value) {
 
-                $start = true;
-            }
+                if ($inputFaction === $value || $start) {
+                    $dbFaction = $this->factionRepository->findOneByReference($value);
+                    $cards = $this->cardRepository->findBy(['faction' => $dbFaction, 'set' => $set, 'rarityString' => CardRarityConstant::RARE], ['name' => 'ASC']);
 
-            if ($start === false) {
-                continue;
-            }
+                    $start = true;
+                }
 
-            foreach ($cards as $card) {
-                $translatedCard = Cards::byReference($card->getReference(), $inputLocale);
+                if ($start === false) {
 
-                $searchCardRequest = new SearchCardRequest();
-                $searchCardRequest->cardSets = [$card->getSet()->getReference()];
-                $searchCardRequest->factions = [$card->getFaction()->getReference()];
-                $searchCardRequest->rarities = ['RARE', 'COMMON'];
-                $searchCardRequest->name = $translatedCard['name'];
+                    continue;
+                }
 
-                for ($i = 0; $i <= 10; $i++) {
-                    $searchCardRequest->mainCost = $i;
+                foreach ($cards as $card) {
+                    $translatedCard = Cards::byReference($card->getReference(), $inputLocale);
 
-                    $remoteCards = Cards::search($searchCardRequest, $inputLocale);
-                    $counter = count($remoteCards);
+                    $searchCardRequest = new SearchCardRequest();
+                    $searchCardRequest->cardSets = [$card->getSet()->getReference()];
+                    $searchCardRequest->factions = [$card->getFaction()->getReference()];
+                    $searchCardRequest->rarities = ['UNIQUE'];
+                    $searchCardRequest->name = $translatedCard['name'];
 
-                    if ($counter === 0) {
-                        continue;
-                    } else if ($counter < 1000) {
-                        $this->process($remoteCards, $card, $translatedCard, $inputLocale, $inputSet, $output, $filesystem, $inputForceRefresh);
-                        continue;
-                    }
-
-                    for ($j = 0; $j <= 10; $j++) {
-                        $searchCardRequest->recallCost = $j;
+                    for ($i = 0; $i <= 10; $i++) {
+                        $searchCardRequest->mainCost = $i;
 
                         $remoteCards = Cards::search($searchCardRequest, $inputLocale);
                         $counter = count($remoteCards);
+
                         if ($counter === 0) {
                             continue;
                         } else if ($counter < 1000) {
@@ -133,8 +132,8 @@ class UniqueCardJsonGeneratorCommand extends Command
                             continue;
                         }
 
-                        for ($k = 0; $k <= 10; $k++) {
-                            $searchCardRequest->mountainPower = $k;
+                        for ($j = 0; $j <= 10; $j++) {
+                            $searchCardRequest->recallCost = $j;
 
                             $remoteCards = Cards::search($searchCardRequest, $inputLocale);
                             $counter = count($remoteCards);
@@ -145,8 +144,8 @@ class UniqueCardJsonGeneratorCommand extends Command
                                 continue;
                             }
 
-                            for ($l = 0; $l <= 10; $l++) {
-                                $searchCardRequest->forestPower = $l;
+                            for ($k = 0; $k <= 10; $k++) {
+                                $searchCardRequest->mountainPower = $k;
 
                                 $remoteCards = Cards::search($searchCardRequest, $inputLocale);
                                 $counter = count($remoteCards);
@@ -157,8 +156,8 @@ class UniqueCardJsonGeneratorCommand extends Command
                                     continue;
                                 }
 
-                                for ($m = 0; $m <= 10; $m++) {
-                                    $searchCardRequest->oceanPower = $m;
+                                for ($l = 0; $l <= 10; $l++) {
+                                    $searchCardRequest->forestPower = $l;
 
                                     $remoteCards = Cards::search($searchCardRequest, $inputLocale);
                                     $counter = count($remoteCards);
@@ -169,10 +168,23 @@ class UniqueCardJsonGeneratorCommand extends Command
                                         continue;
                                     }
 
+                                    for ($m = 0; $m <= 10; $m++) {
+                                        $searchCardRequest->oceanPower = $m;
 
-                                    $output->writeln('more than 1000 results');
+                                        $remoteCards = Cards::search($searchCardRequest, $inputLocale);
+                                        $counter = count($remoteCards);
+                                        if ($counter === 0) {
+                                            continue;
+                                        } else if ($counter < 1000) {
+                                            $this->process($remoteCards, $card, $translatedCard, $inputLocale, $inputSet, $output, $filesystem, $inputForceRefresh);
+                                            continue;
+                                        }
 
 
+                                        $output->writeln('more than 1000 results');
+
+
+                                    }
                                 }
                             }
                         }
