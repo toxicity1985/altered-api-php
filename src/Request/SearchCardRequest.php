@@ -47,7 +47,7 @@ class SearchCardRequest implements SearchRequestInterface
             }
         }
         if ($this->name !== null) {
-            $urlParameters .= '&translations.name=' . $this->name;
+            $urlParameters .= '&query=' . $this->name;
         }
         if ($this->mountainPower !== null) {
             $urlParameters .= '&mountainPower[]=' . $this->mountainPower;
