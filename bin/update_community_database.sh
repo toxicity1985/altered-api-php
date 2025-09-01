@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd altered_marketplace || exit
+cd community_database || exit
 
 git checkout main && git pull
 
@@ -8,6 +8,10 @@ cd .. || exit
 
 # 1. Exécuter le script
 php bin/application app:market-place:json
+php bin/application app:unique:json BISE
+php bin/application app:unique:json ALIZE
+php bin/application app:unique:json CORE
+php bin/application app:unique:json COREKS
 
 # 2. Vérifier que le script s'est bien terminé
 if [ $? -eq 0 ]; then
