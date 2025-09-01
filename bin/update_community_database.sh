@@ -21,7 +21,7 @@ if [ $? -eq 0 ]; then
     BRANCH_NAME=$(date +"%d-%m-%Y")
 
     # 4. Aller dans le dossier altered_marketplace
-    cd altered_marketplace || exit
+    cd community_database || exit
 
     # 5. Git operations
     git checkout -b "update-$BRANCH_NAME"
