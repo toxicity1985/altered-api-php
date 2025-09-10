@@ -45,7 +45,7 @@ class UniqueCardJsonGeneratorCommand extends Command
         $rateLimiterFactory = new RateLimiterFactory([
             'id' => 'login',
             'policy' => 'fixed_window',
-            'limit' => 10,
+            'limit' => 8,
             'interval' => '10 seconds',
         ], new InMemoryStorage());
 
