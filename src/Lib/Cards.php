@@ -8,6 +8,7 @@ use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Toxicity\AlteredApi\Exception\InvalidSearchCardRequestException;
+use Toxicity\AlteredApi\Exception\RateLimitExceededException;
 use Toxicity\AlteredApi\Request\SearchCardRequest;
 use Toxicity\AlteredApi\Service\ValidatorService;
 
@@ -47,12 +48,23 @@ class Cards extends AlteredApiResource
      */
     public static function search(SearchCardRequest $searchCardRequest, ?string $locale = 'fr-fr', ?string $token = null): array
     {
+
         $errors = ValidatorService::validateSearchRequest($searchCardRequest);
         if(sizeof($errors) > 0) {
             throw new InvalidSearchCardRequestException($errors);
         }
 
-        return self::build()->getCardsBySearch($searchCardRequest, $locale, $token);
+        try {
+            return self::build()->getCardsBySearch($searchCardRequest, $locale, $token);
+        }
+        catch (RateLimitExceededException $e) {
+            echo "Erreur 429 : " . $e->getServerMessage() . "\n";
+            if ($e->getRetryAfter() > 0) {
+                echo "Réessayer dans " . $e->getRetryAfter() . " secondes\n";
+            }
+        }
+
+        return [];
     }
 
     /**

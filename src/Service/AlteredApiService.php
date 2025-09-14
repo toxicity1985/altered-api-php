@@ -7,6 +7,7 @@ use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Toxicity\AlteredApi\Exception\RateLimitExceededException;
 use Toxicity\AlteredApi\Provider\AlteredHttpClient;
 use Toxicity\AlteredApi\Request\SearchCardRequest;
 use Toxicity\AlteredApi\Request\SearchEventRequest;
@@ -23,6 +24,7 @@ readonly class AlteredApiService
      * @throws RedirectionExceptionInterface
      * @throws DecodingExceptionInterface
      * @throws ClientExceptionInterface
+     * @throws RateLimitExceededException
      */
     public function getSets(?string $locale = 'fr-fr'): array
     {
@@ -61,7 +63,7 @@ readonly class AlteredApiService
      * @throws ServerExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws DecodingExceptionInterface
-     * @throws ClientExceptionInterface
+     * @throws ClientExceptionInterface|RateLimitExceededException
      */
     public function getCardsBySearch(SearchCardRequest $searchCardRequest, ?string $locale = 'fr-fr', ?string $token = null): array
     {
