@@ -58,9 +58,9 @@ class Cards extends AlteredApiResource
             return self::build()->getCardsBySearch($searchCardRequest, $locale, $token);
         }
         catch (RateLimitExceededException $e) {
-            echo "Erreur 429 : " . $e->getServerMessage() . "\n";
+            var_dump("Erreur 429 : " . $e->getServerMessage() . "\n");
             if ($e->getRetryAfter() > 0) {
-                echo "Réessayer dans " . $e->getRetryAfter() . " secondes\n";
+                var_dump("Réessayer dans " . $e->getRetryAfter() . " secondes\n");
             }
         }
 
