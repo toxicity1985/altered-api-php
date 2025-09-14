@@ -78,7 +78,7 @@ readonly class AlteredApiService
         $url = $this->buildUrl('/cards?' . $searchCardRequest->getUrlParameters(), $locale);
 
         while (!$empty) {
-            usleep(400000);
+            usleep(600000);
             $response = $this->alteredHttpClient->request('GET', $url . '&itemsPerPage=36&order[reference]=ASC&page=' . $page, $options);
 
             $content = $response->toArray();
