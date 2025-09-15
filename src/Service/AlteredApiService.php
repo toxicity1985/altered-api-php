@@ -81,6 +81,7 @@ readonly class AlteredApiService
 
         while (!$empty) {
             usleep(600000);
+            var_dump($url . '&itemsPerPage=36&order[reference]=ASC&page=' . $page);
             $response = $this->alteredHttpClient->request('GET', $url . '&itemsPerPage=36&order[reference]=ASC&page=' . $page, $options);
 
             $content = $response->toArray();
