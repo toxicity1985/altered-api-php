@@ -75,6 +75,7 @@ class UniqueCardJsonGeneratorCommand extends Command
         $inputForceRefresh = (bool)$input->getArgument('force-refresh');
 
         $sets = [
+            'CYCLONE' => $this->setRepository->findOneByReference('CYCLONE'),
             'ALIZE' => $this->setRepository->findOneByReference('ALIZE'),
             'CORE' => $this->setRepository->findOneByReference('CORE'),
             'COREKS' => $this->setRepository->findOneByReference('COREKS'),

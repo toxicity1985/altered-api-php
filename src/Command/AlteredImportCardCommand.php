@@ -67,7 +67,7 @@ class AlteredImportCardCommand extends Command
         foreach (Sets::all() as $data) {
             $set = $this->setService->buildFromData($data);
             $this->setService->save($set);
-            if (in_array($set->getReference(), ['BISE'])) {
+            if (in_array($set->getReference(), ['CYCLONE'])) {
                 $sets[] = $set;
             }
         }

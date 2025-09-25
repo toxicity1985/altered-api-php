@@ -38,7 +38,8 @@ class CardSubTypeConstant
         self::TRAINER,
         self::SITE,
         self::ILLUSION,
-        self::CONSTRUCTION
+        self::CONSTRUCTION,
+        self::SCIENTIST
     ];
 
     public const ADVENTURER = 'ADVENTURER';
@@ -75,4 +76,5 @@ class CardSubTypeConstant
     public const SITE = 'SITE';
     public const ILLUSION = 'ILLUSION';
     public const CONSTRUCTION = 'CONSTRUCTION';
+    public const SCIENTIST = 'SCIENTIST';
 }

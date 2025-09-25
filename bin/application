@@ -5,6 +5,9 @@ require __DIR__ . '/../vendor/autoload.php';
 require_once "bootstrap.php";
 
 use Symfony\Component\Console\Application;
+use Toxicity\AlteredApi\Repository\CardRepository;
+use Toxicity\AlteredApi\Repository\FactionRepository;
+use Toxicity\AlteredApi\Repository\SetRepository;
 use Toxicity\AlteredApi\Service\CardService;
 use Toxicity\AlteredApi\Command\AlteredSetCommand;
 use Toxicity\AlteredApi\Command\AlteredTokenCommand;
@@ -21,7 +24,9 @@ use \Toxicity\AlteredApi\Command\AlteredMarketPlaceGeneratorCommand;
 
 $application = new Application();
 $application->add(new AlteredTokenCommand());
-$application->add(new AlteredSetCommand());
+$application->add(new AlteredSetCommand(
+        new SetService(new SetBuilder(), $entityManager)
+));
 $application->add(new AlteredFactionCommand());
 $application->add(new AlteredCardCommand());
 $application->add(new AlteredUserCommand());
@@ -31,14 +36,14 @@ $application->add(new AlteredImportCardCommand(
     new CardService($entityManager)
 ));
 $application->add(new UniqueCardJsonGeneratorCommand(
-    new \Toxicity\AlteredApi\Repository\FactionRepository($entityManager),
-    new \Toxicity\AlteredApi\Repository\SetRepository($entityManager),
-    new \Toxicity\AlteredApi\Repository\CardRepository($entityManager)
+    new FactionRepository($entityManager),
+    new SetRepository($entityManager),
+    new CardRepository($entityManager)
 ));
 $application->add(new AlteredMarketPlaceGeneratorCommand(
-    new \Toxicity\AlteredApi\Repository\FactionRepository($entityManager),
-    new \Toxicity\AlteredApi\Repository\SetRepository($entityManager),
-    new \Toxicity\AlteredApi\Repository\CardRepository($entityManager)
+    new FactionRepository($entityManager),
+    new SetRepository($entityManager),
+    new CardRepository($entityManager)
 ));
 
 $application->run();
