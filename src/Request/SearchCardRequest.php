@@ -95,8 +95,6 @@ class SearchCardRequest implements SearchRequestInterface
             $urlParameters .= $this->inSale ? 'true'  : false;
         }
 
-        $urlParameters .= '&itemsPerPage=' . $this->itemsPerPage;
-
         return str_starts_with($urlParameters, '&') ? substr($urlParameters, 1) : $urlParameters;
     }
 }
