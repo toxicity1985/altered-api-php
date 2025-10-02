@@ -81,8 +81,8 @@ readonly class AlteredApiService
 
         while (!$empty) {
             usleep(600000);
-            var_dump($url . '&itemsPerPage=36&order[reference]=ASC&page=' . $page);
-            $response = $this->alteredHttpClient->request('GET', $url . '&itemsPerPage=36&order[reference]=ASC&page=' . $page, $options);
+            var_dump($url . '&itemsPerPage=108&order[reference]=ASC&page=' . $page);
+            $response = $this->alteredHttpClient->request('GET', $url . '&itemsPerPage=108&order[reference]=ASC&page=' . $page, $options);
 
             $content = $response->toArray();
 
@@ -117,7 +117,7 @@ readonly class AlteredApiService
 
         $options = ['headers' => ['Authorization' => 'Bearer ' . $token]];
 
-        $url = $this->buildUrl('/cards/stats?itemsPerPage=36&' . $searchCardRequest->getUrlParameters(), $locale);
+        $url = $this->buildUrl('/cards/stats?itemsPerPage=108&' . $searchCardRequest->getUrlParameters(), $locale);
 
         while (!$empty) {
             $response = $this->alteredHttpClient->request('GET', $url . '&page=' . $page, $options, $limiter);

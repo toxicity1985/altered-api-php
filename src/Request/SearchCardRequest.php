@@ -37,8 +37,6 @@ class SearchCardRequest implements SearchRequestInterface
     public ?string $name = null;
     #[Assert\Type('boolean')]
     public ?bool $inSale = null;
-    #[Assert\Type('integer')]
-    public int $itemsPerPage = 108;
 
     public function getUrlParameters(): string
     {
