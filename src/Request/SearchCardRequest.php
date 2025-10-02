@@ -37,6 +37,8 @@ class SearchCardRequest implements SearchRequestInterface
     public ?string $name = null;
     #[Assert\Type('boolean')]
     public ?bool $inSale = null;
+    #[Assert\Type('integer')]
+    public int $itemsPerPage = 108;
 
     public function getUrlParameters(): string
     {
@@ -94,6 +96,8 @@ class SearchCardRequest implements SearchRequestInterface
             $urlParameters .= '&inSale=';
             $urlParameters .= $this->inSale ? 'true'  : false;
         }
+
+        $urlParameters .= '&itemsPerPage=' . $this->itemsPerPage;
 
         return str_starts_with($urlParameters, '&') ? substr($urlParameters, 1) : $urlParameters;
     }
