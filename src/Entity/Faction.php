@@ -98,7 +98,7 @@ class Faction implements TimestampInterface, ObjectInterface
 
     public function removeCard(Card $card): self
     {
-        $this->cards->remove($card);
+        $this->cards->removeElement($card);
 
         return $this;
     }

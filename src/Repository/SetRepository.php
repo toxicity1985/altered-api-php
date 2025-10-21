@@ -3,8 +3,9 @@
 namespace Toxicity\AlteredApi\Repository;
 
 use Toxicity\AlteredApi\Entity\Set;
+use Toxicity\AlteredApi\Contract\RepositoryInterface;
 
-class SetRepository extends AbstractRepository
+class SetRepository extends AbstractRepository implements RepositoryInterface
 {
     public function findOneByReference(string $string): ?Set
     {

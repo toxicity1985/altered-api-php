@@ -4,7 +4,6 @@ namespace Toxicity\AlteredApi\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Toxicity\AlteredApi\Builder\SetBuilder;
-use Toxicity\AlteredApi\Entity\Faction;
 use Toxicity\AlteredApi\Entity\Set;
 
 class SetService extends AbstractObjectService

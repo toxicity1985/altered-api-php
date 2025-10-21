@@ -17,7 +17,11 @@ class CardService extends AbstractObjectService
     {
         parent::__construct($entityManager);
         $this->entityClassName = Card::class;
-        $this->cardBuilder = new CardBuilder($this->getRepository(Faction::class), $this->getRepository(Set::class));
+        
+        $this->cardBuilder = new CardBuilder(
+            $this->getRepository(Faction::class),
+            $this->getRepository(Set::class)
+        );
     }
 
     public function buildFromData(array $data, string $locale = 'fr-fr'): Card
@@ -26,8 +30,8 @@ class CardService extends AbstractObjectService
 
         if ($card === null) {
             $card = new Card();
-
         }
+        
         return $this->cardBuilder->build($card, $data, $locale);
     }
 

@@ -8,13 +8,25 @@
             "Toxicity\\AlteredApi\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Toxicity\\AlteredApi\\tests\\": "tests/"
+        }
+    },
     "authors": [
         {
             "name": "John Quairia",
             "email": "tech@toxicity.be"
         }
     ],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:toxicity1985/atoum.git"
+        }
+    ],
     "require": {
         "php": ">=8.2",
         "ext-ctype": "*",
@@ -29,6 +41,11 @@
         "symfony/rate-limiter": "^7.3"
     },
     "require-dev": {
-        "symfony/panther": "^2.2"
+        "symfony/panther": "^2.2",
+        "atoum/atoum": "dev-update/php8.4"
+    },
+    "scripts": {
+        "test": "vendor/bin/atoum -c .atoum.php",
+        "test-coverage": "vendor/bin/atoum -c .atoum.php --enable-branch-and-path-coverage"
     }
 }

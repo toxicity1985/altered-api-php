@@ -2,6 +2,8 @@
 
 namespace Toxicity\AlteredApi\Repository;
 
-class CardRepository extends AbstractRepository
+use Toxicity\AlteredApi\Contract\RepositoryInterface;
+
+class CardRepository extends AbstractRepository implements RepositoryInterface
 {
 }

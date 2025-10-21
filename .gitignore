@@ -1,12 +1,12 @@
+# Ignorer la couverture de code
+/coverage/
+
+# Ignorer les fichiers temporaires de tests
+/.atoum.output
+
 ###> symfony/framework-bundle ###
 /vendor/
 ###< symfony/framework-bundle ###
-
-###> phpunit/phpunit ###
-/phpunit.xml
-.phpunit.result.cache
-###< phpunit/phpunit ###
-
 
 /community_database/
 /community_database/*
