@@ -2,7 +2,9 @@
 
 namespace Toxicity\AlteredApi\Command;
 
+use DateTimeImmutable;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\RateLimiter\LimiterInterface;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\RateLimiter\Storage\InMemoryStorage;
@@ -81,17 +83,54 @@ class AlteredMarketPlaceGeneratorCommand extends Command
             'BISE' => $this->setRepository->findOneByReference('BISE'),
         ];
 
-        if(array_key_exists($inputSet, $sets)) {
+        if (array_key_exists($inputSet, $sets)) {
             $sets = [$inputSet => $sets[$inputSet]];
         }
 
         $factions = CardFactionConstant::ALL;
-        if($inputFaction) {
+        if ($inputFaction) {
             $factions = [$inputFaction];
         }
 
         $this->processCardStats($sets, $factions, $inputLocale, $output);
         //$this->processOffers($sets, $inputLocale, $output);
+
+        //set old offer to sold when they are not updated
+        $soldOffers = 0;
+        $totalOffer = 0;
+        $files = (new Finder())->files()->in('altered_marketplace/*');
+        foreach ($files as $file) {
+            $content = json_decode($file->getContents(), true);
+
+            $created = new DateTimeImmutable($content[0]['created']);
+            $updated = $content[0]['updated'] ? new DateTimeImmutable($content[0]['updated']) : null;
+            $now = new DateTimeImmutable();
+
+            if (!$updated && $created->format('Y-m-d') !== $now->format('Y-m-d')) {
+                $content[0]['status'] = 'sold';
+                $soldOffers++;
+
+                $fp = fopen($file->getPathname(), 'w');
+                $dataCard = self::orderRecursivelyByKey($content);
+                fwrite($fp, mb_convert_encoding(json_encode($dataCard, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), 'utf8'));
+                fclose($fp);
+
+            } elseif ($updated && $updated->format('Y-m-d') !== $now->format('Y-m-d')) {
+                $content[0]['status'] = 'sold';
+                $soldOffers++;
+
+                $fp = fopen($file->getPathname(), 'w');
+                $dataCard = self::orderRecursivelyByKey($content);
+                fwrite($fp, mb_convert_encoding(json_encode($dataCard, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), 'utf8'));
+                fclose($fp);
+            }
+
+            $totalOffer++;
+        }
+
+        $output->writeln('<info>Sold offers: ' . $soldOffers . '</info>');
+        $output->writeln('<info>Total offers: ' . $totalOffer . '</info>');
+        //end
 
         return Command::SUCCESS;
     }
@@ -116,7 +155,7 @@ class AlteredMarketPlaceGeneratorCommand extends Command
                     $remoteStats = Cards::stats($searchCardRequest, $this->refreshAccessToken(), $inputLocale);
                     $counter = count($remoteStats);
 
-                    $output->writeln('<info>Main cost: '.$i.' ('.$counter.')</info>');
+                    $output->writeln('<info>Main cost: ' . $i . ' (' . $counter . ')</info>');
 
                     if ($counter === 0) {
                         continue;
@@ -131,10 +170,10 @@ class AlteredMarketPlaceGeneratorCommand extends Command
                         $remoteStats = Cards::stats($searchCardRequest, $this->refreshAccessToken(), $inputLocale);;
                         $counter = count($remoteStats);
                         if ($counter === 0) {
-                            $searchCardRequest->recallCost =  null;
+                            $searchCardRequest->recallCost = null;
                             continue;
                         } else if ($counter < 1000) {
-                            $searchCardRequest->recallCost =  null;
+                            $searchCardRequest->recallCost = null;
                             $this->processStats($remoteStats, $inputLocale, $keySet, $output, $filesystem);
                             continue;
                         }
@@ -145,10 +184,10 @@ class AlteredMarketPlaceGeneratorCommand extends Command
                             $remoteStats = Cards::stats($searchCardRequest, $this->refreshAccessToken(), $inputLocale);
                             $counter = count($remoteStats);
                             if ($counter === 0) {
-                                $searchCardRequest->mountainPower =  null;
+                                $searchCardRequest->mountainPower = null;
                                 continue;
                             } else if ($counter < 1000) {
-                                $searchCardRequest->mountainPower =  null;
+                                $searchCardRequest->mountainPower = null;
                                 $this->processStats($remoteStats, $inputLocale, $keySet, $output, $filesystem);
                                 continue;
                             }
@@ -159,10 +198,10 @@ class AlteredMarketPlaceGeneratorCommand extends Command
                                 $remoteStats = Cards::stats($searchCardRequest, $this->refreshAccessToken(), $inputLocale);
                                 $counter = count($remoteStats);
                                 if ($counter === 0) {
-                                    $searchCardRequest->forestPower =  null;
+                                    $searchCardRequest->forestPower = null;
                                     continue;
                                 } else if ($counter < 1000) {
-                                    $searchCardRequest->forestPower =  null;
+                                    $searchCardRequest->forestPower = null;
                                     $this->processStats($remoteStats, $inputLocale, $keySet, $output, $filesystem);
                                     continue;
                                 }
@@ -173,10 +212,10 @@ class AlteredMarketPlaceGeneratorCommand extends Command
                                     $remoteStats = Cards::stats($searchCardRequest, $this->refreshAccessToken(), $inputLocale);
                                     $counter = count($remoteStats);
                                     if ($counter === 0) {
-                                        $searchCardRequest->oceanPower =  null;
+                                        $searchCardRequest->oceanPower = null;
                                         continue;
                                     } else if ($counter < 1000) {
-                                        $searchCardRequest->oceanPower =  null;
+                                        $searchCardRequest->oceanPower = null;
                                         $this->processStats($remoteStats, $inputLocale, $keySet, $output, $filesystem);
                                         continue;
                                     }
@@ -215,7 +254,7 @@ class AlteredMarketPlaceGeneratorCommand extends Command
                     $remoteCards = Cards::search($searchCardRequest, $inputLocale, $this->refreshAccessToken());
                     $counter = count($remoteCards);
 
-                    if($counter === 100) {
+                    if ($counter === 100) {
                         die();
                     }
 
@@ -293,7 +332,7 @@ class AlteredMarketPlaceGeneratorCommand extends Command
 
         foreach ($cards as $data) {
             $interval = date_diff($this->start, (new \DateTime()));
-            (int) $gap = $interval->format('%i');
+            (int)$gap = $interval->format('%i');
 
             if ($gap > 15) {
                 $this->start = new \DateTime();
@@ -328,31 +367,32 @@ class AlteredMarketPlaceGeneratorCommand extends Command
 
             $offers = Cards::offers($data['reference'], $token);
 
-            if(count($offers) > 0) {
+            if (count($offers) > 0) {
                 $fp = fopen($directory . '/' . $data['reference'] . '.json', 'w');
                 $offers = self::orderRecursivelyByKey($offers);
                 fwrite($fp, mb_convert_encoding(json_encode($offers, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), 'utf8'));
                 fclose($fp);
 
                 //$output->writeln(sprintf('<info>Process %s</info>', $data['reference']));
-            }
-            else {
+            } else {
                 //$output->writeln(sprintf('<info>No offers for %s</info>', $data['reference']));
             }
         }
+
+
     }
 
     private function processStats(array $stats, string $locale, string $set, OutputInterface $output, Filesystem $filesystem): void
     {
         $token = $this->refreshAccessToken();
 
-        $limiter = RateLimiterService::create(2,2);
+        $limiter = RateLimiterService::create(2, 2);
 
         $counter = 0;
 
         foreach ($stats as $data) {
 
-            if($counter === 100) {
+            if ($counter === 100) {
                 $counter = 0;
                 $token = $this->refreshAccessToken();
             }
@@ -372,7 +412,7 @@ class AlteredMarketPlaceGeneratorCommand extends Command
                 $json = file_get_contents($directory . '/' . $reference . '.json');
                 $json = json_decode($json, true);
 
-                if($json[0]['price'] === $json[0]['convertedPrice']) {
+                if ($json[0]['price'] === $json[0]['convertedPrice']) {
                     $json[0]['price'] = $data['lowerPrice'];
                     $json[0]['convertedPrice'] = $data['lowerPrice'];
                     $json[0]['updated'] = (new \DateTime())->format('Y-m-d H:i:s');
@@ -382,8 +422,7 @@ class AlteredMarketPlaceGeneratorCommand extends Command
                     fwrite($fp, mb_convert_encoding(json_encode($dataCard, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), 'utf8'));
                     fclose($fp);
                 }
-            }
-            else {
+            } else {
 
                 if ($filesystem->exists($databaseDirectory . '/' . $reference . '.json')) {
                     //$output->writeln(sprintf('<info>%s exist</info>', $reference . '.json'));
@@ -405,7 +444,7 @@ class AlteredMarketPlaceGeneratorCommand extends Command
                 $limiter->reserve(1)->wait();
                 $offers = Cards::offers($reference, $token);
 
-                if(count($offers) > 0) {
+                if (count($offers) > 0) {
                     $offers[0]['updated'] = null;
                     $offers[0]['created'] = (new \DateTime())->format('Y-m-d H:i:s');
                     $fp = fopen($directory . '/' . $reference . '.json', 'w');
@@ -414,8 +453,7 @@ class AlteredMarketPlaceGeneratorCommand extends Command
                     fclose($fp);
 
                     //$output->writeln(sprintf('<info>Process %s</info>', $reference));
-                }
-                else {
+                } else {
                     //$output->writeln(sprintf('<info>No offers for %s</info>', $reference));
                 }
             }
