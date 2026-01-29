@@ -77,4 +77,7 @@ class CardSubTypeConstant
     public const ILLUSION = 'ILLUSION';
     public const CONSTRUCTION = 'CONSTRUCTION';
     public const SCIENTIST = 'SCIENTIST';
+    public const ROGUE = 'ROGUE';
+    public const MERCHANT = 'MERCHANT';
+
 }

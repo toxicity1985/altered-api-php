@@ -7,6 +7,7 @@ git checkout main && git pull
 cd .. || exit
 
 # 1. Exécuter le script
+php bin/application app:unique:json DUSTER
 php bin/application app:unique:json CYCLONE
 php bin/application app:unique:json BISE
 php bin/application app:unique:json ALIZE

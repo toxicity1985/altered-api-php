@@ -9,7 +9,8 @@ class CardSetConstant
         self::CORE,
         self::ALIZE,
         self::BISE,
-        self::CYCLONE
+        self::CYCLONE,
+        self::DUSTER
     ];
 
     public const COREKS = 'COREKS';
@@ -17,4 +18,5 @@ class CardSetConstant
     public const ALIZE = 'ALIZE';
     public const BISE = 'BISE';
     public const CYCLONE = 'CYCLONE';
+    public const DUSTER = 'DUSTER';
 }

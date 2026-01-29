@@ -75,6 +75,7 @@ class UniqueCardJsonGeneratorCommand extends Command
         $inputForceRefresh = (bool)$input->getArgument('force-refresh');
 
         $sets = [
+            'DUSTER' => $this->setRepository->findOneByReference('DUSTER'),
             'CYCLONE' => $this->setRepository->findOneByReference('CYCLONE'),
             'ALIZE' => $this->setRepository->findOneByReference('ALIZE'),
             'CORE' => $this->setRepository->findOneByReference('CORE'),
@@ -117,7 +118,7 @@ class UniqueCardJsonGeneratorCommand extends Command
                     $searchCardRequest = new SearchCardRequest();
                     $searchCardRequest->cardSets = [$card->getSet()->getReference()];
                     $searchCardRequest->factions = [$card->getFaction()->getReference()];
-                    $searchCardRequest->rarities = ['UNIQUE'];
+                    $searchCardRequest->rarities = ['UNIQUE', 'RARE', 'COMMON'];
                     $searchCardRequest->name = $translatedCard['name'];
 
                     for ($i = 0; $i <= 10; $i++) {
