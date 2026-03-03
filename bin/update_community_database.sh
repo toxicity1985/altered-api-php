@@ -10,7 +10,7 @@ cd .. || exit
 php bin/application app:unique:json DUSTER
 php bin/application app:unique:json CYCLONE
 php bin/application app:unique:json BISE
-php bin/application app:unique:json ALIZE
+#php bin/application app:unique:json ALIZE
 #php bin/application app:unique:json CORE
 #php bin/application app:unique:json COREKS
 
