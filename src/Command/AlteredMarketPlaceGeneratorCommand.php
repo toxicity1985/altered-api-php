@@ -76,6 +76,7 @@ class AlteredMarketPlaceGeneratorCommand extends Command
         $inputFaction = $input->getArgument('faction');
 
         $sets = [
+            'DUSTER' => $this->setRepository->findOneByReference('DUSTER'),
             'CYCLONE' => $this->setRepository->findOneByReference('CYCLONE'),
             'ALIZE' => $this->setRepository->findOneByReference('ALIZE'),
             'CORE' => $this->setRepository->findOneByReference('CORE'),
