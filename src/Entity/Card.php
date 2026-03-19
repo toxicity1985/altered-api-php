@@ -80,8 +80,8 @@ class Card implements TimestampInterface, ObjectInterface
     #[ORM\Column(type: "integer", nullable: true)]
     private ?int $forestPower = null;
 
-    #[ORM\Column(type: "integer", nullable: true)]
-    private ?int $permanent = null;
+    #[ORM\Column(type: "string", nullable: true)]
+    private ?string $permanent = null;
 
     #[ORM\Column(type: "boolean", nullable: true)]
     private bool $isSuspended = false;
@@ -321,7 +321,7 @@ class Card implements TimestampInterface, ObjectInterface
         return $this->permanent;
     }
 
-    public function setPermanent(?int $permanent): self
+    public function setPermanent(?string $permanent): self
     {
         $this->permanent = $permanent;
 

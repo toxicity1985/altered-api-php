@@ -64,10 +64,12 @@ class AlteredImportCardCommand extends Command
             $factions[] = $faction;
         }
 
+
+
         foreach (Sets::all() as $data) {
             $set = $this->setService->buildFromData($data);
             $this->setService->save($set);
-            if (in_array($set->getReference(), ['DUSTER'])) {
+            if (in_array($set->getReference(), ["TCS3", "WCQ25", "WCS25", "WCF25", "JUDGE", "MUSUBI", "DUSTEROP", "DUSTER", "DUSTERTOP", "DUSTERCB", "EOLE", "WCS26"])) {
                 $sets[] = $set;
             }
         }
