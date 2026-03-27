@@ -141,6 +141,10 @@ class AlteredMarketPlaceGeneratorCommand extends Command
         foreach ($sets as $keySet => $set) {
             foreach ($factions as $value) {
                 $directory = 'altered_marketplace/' . $keySet . '/' . $value;
+
+                var_dump($directory);
+                die();
+
                 $filesystem = new Filesystem();
                 $filesystem->mkdir($directory);
 
