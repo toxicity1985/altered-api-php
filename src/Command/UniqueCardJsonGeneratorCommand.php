@@ -84,6 +84,7 @@ class UniqueCardJsonGeneratorCommand extends Command
         }
 
         $sets = [
+            'EOLE' => $this->setRepository->findOneByReference('EOLE'),
             'DUSTER' => $this->setRepository->findOneByReference('DUSTER'),
             'CYCLONE' => $this->setRepository->findOneByReference('CYCLONE'),
             'ALIZE' => $this->setRepository->findOneByReference('ALIZE'),
