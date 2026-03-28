@@ -229,7 +229,7 @@ class UniqueCardJsonGeneratorCommand extends Command
             $dataCard['translations']['de-de'] = $t;
 
             if ($filesystem->exists($directory . '/' . $data['reference'] . '.json') && !$forceRefresh) {
-                $dataCard['updated'] = (new \DateTimeImmutable($data['updated']))->format('Y-m-d H:i:s');
+                $dataCard['updated'] = (new \DateTimeImmutable())->format('Y-m-d H:i:s');
             }
             $fp = fopen($directory . '/' . $data['reference'] . '.json', 'w');
             $dataCard = self::orderRecursivelyByKey($dataCard);
