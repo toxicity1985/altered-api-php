@@ -23,24 +23,24 @@ use \Toxicity\AlteredApi\Command\UniqueCardJsonGeneratorCommand;
 use \Toxicity\AlteredApi\Command\AlteredMarketPlaceGeneratorCommand;
 
 $application = new Application();
-$application->add(new AlteredTokenCommand());
-$application->add(new AlteredSetCommand(
+$application->addCommand(new AlteredTokenCommand());
+$application->addCommand(new AlteredSetCommand(
         new SetService(new SetBuilder(), $entityManager)
 ));
-$application->add(new AlteredFactionCommand());
-$application->add(new AlteredCardCommand());
-$application->add(new AlteredUserCommand());
-$application->add(new AlteredImportCardCommand(
+$application->addCommand(new AlteredFactionCommand());
+$application->addCommand(new AlteredCardCommand());
+$application->addCommand(new AlteredUserCommand());
+$application->addCommand(new AlteredImportCardCommand(
     new FactionService(new FactionBuilder(), $entityManager),
     new SetService(new SetBuilder(), $entityManager),
     new CardService($entityManager)
 ));
-$application->add(new UniqueCardJsonGeneratorCommand(
+$application->addCommand(new UniqueCardJsonGeneratorCommand(
     new FactionRepository($entityManager),
     new SetRepository($entityManager),
     new CardRepository($entityManager)
 ));
-$application->add(new AlteredMarketPlaceGeneratorCommand(
+$application->addCommand(new AlteredMarketPlaceGeneratorCommand(
     new FactionRepository($entityManager),
     new SetRepository($entityManager),
     new CardRepository($entityManager)
