@@ -227,6 +227,9 @@ class UniqueCardJsonGeneratorCommand extends Command
             $dataCard['translations']['it-it'] = $t;
             $t = Cards::byReference($data['reference'], 'de-de');
             $dataCard['translations']['de-de'] = $t;
+            $t = Cards::byReference($data['reference'], 'es-es');
+            $dataCard['translations']['es-es'] = $t;
+
 
             if ($filesystem->exists($directory . '/' . $data['reference'] . '.json') && !$forceRefresh) {
                 $dataCard['updated'] = (new \DateTimeImmutable())->format('Y-m-d H:i:s');
