@@ -128,7 +128,7 @@ class UniqueCardJsonGeneratorCommand extends Command
                     $searchCardRequest = new SearchCardRequest();
                     $searchCardRequest->cardSets = [$card->getSet()->getReference()];
                     $searchCardRequest->factions = [$card->getFaction()->getReference()];
-                    $searchCardRequest->rarities = ['UNIQUE', 'RARE', 'COMMON'];
+                    $searchCardRequest->rarities = ['UNIQUE'];
                     $searchCardRequest->name = $translatedCard['name'];
 
                     for ($i = 0; $i <= 10; $i++) {
