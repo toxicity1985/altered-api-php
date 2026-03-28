@@ -217,13 +217,20 @@ class UniqueCardJsonGeneratorCommand extends Command
 
             if ($filesystem->exists($directory . '/' . $data['reference'] . '.json') && !$forceRefresh) {
                 $output->writeln(sprintf('<info>%s exist</info>', $data['reference'] . '.json'));
-                continue;
             }
 
             $dataCard = $this->getByReference($data['reference'], $locale);
             $dataCard['translations'] = [];
             $t = Cards::byReference($data['reference']);
             $dataCard['translations']['fr-fr'] = $t;
+            $t = Cards::byReference($data['reference'], 'it-it');
+            $dataCard['translations']['it-it'] = $t;
+            $t = Cards::byReference($data['reference'], 'de-de');
+            $dataCard['translations']['de-de'] = $t;
+
+            if ($filesystem->exists($directory . '/' . $data['reference'] . '.json') && !$forceRefresh) {
+                $dataCard['updated'] = (new \DateTimeImmutable($data['updated']))->format('Y-m-d H:i:s');
+            }
             $fp = fopen($directory . '/' . $data['reference'] . '.json', 'w');
             $dataCard = self::orderRecursivelyByKey($dataCard);
             fwrite($fp, mb_convert_encoding(json_encode($dataCard, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), 'utf8'));
