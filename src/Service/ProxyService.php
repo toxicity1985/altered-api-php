@@ -92,8 +92,11 @@ class ProxyService
         try {
             $response = $client->request('GET', self::TEST_URL);
             $status = $response->getStatusCode();
-
-            return $status !== 403 && $status !== 407;
+            if ($status === 403 || $status === 407) {
+                return false;
+            }
+            $response->getContent(false); // force body read to catch CONNECT tunnel failures
+            return true;
         } catch (\Throwable) {
             return false;
         }

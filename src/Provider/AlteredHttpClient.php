@@ -73,6 +73,9 @@ class AlteredHttpClient
                     continue;
                 }
 
+                // Force headers read to catch deferred CONNECT tunnel errors before returning
+                $response->getHeaders(false);
+
                 return $response;
 
             } catch (TransportExceptionInterface $e) {
