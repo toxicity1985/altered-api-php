@@ -25,6 +25,7 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Toxicity\AlteredApi\Model\CardFactionConstant;
 use Toxicity\AlteredApi\Model\CardRarityConstant;
+use Toxicity\AlteredApi\Service\ProxyService;
 
 #[AsCommand(
     name: 'app:unique:json',
@@ -73,6 +74,14 @@ class UniqueCardJsonGeneratorCommand extends Command
         $inputSet = $input->getArgument('set');
         $inputFaction = $input->getArgument('faction');
         $inputForceRefresh = (bool)$input->getArgument('force-refresh');
+
+        $proxyService = new ProxyService();
+        $proxy = $proxyService->findWorkingProxy();
+        if ($proxy) {
+            \Toxicity\AlteredApi\Lib\AlteredApiResource::setProxy($proxy, $proxyService);
+        } else {
+            $output->writeln('<comment>No working proxy found, proceeding without proxy.</comment>');
+        }
 
         $sets = [
             'DUSTER' => $this->setRepository->findOneByReference('DUSTER'),
