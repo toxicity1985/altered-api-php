@@ -215,8 +215,15 @@ class UniqueCardJsonGeneratorCommand extends Command
             $directory = 'community_database/' . $set . '/' . $explode[3] . '/' . $explode[4];
             $filesystem->mkdir($directory);
 
-            if ($filesystem->exists($directory . '/' . $data['reference'] . '.json') && !$forceRefresh) {
-                $output->writeln(sprintf('<info>%s exist</info>', $data['reference'] . '.json'));
+            $filePath = $directory . '/' . $data['reference'] . '.json';
+
+            if ($filesystem->exists($filePath) && !$forceRefresh) {
+                $existing = json_decode(file_get_contents($filePath), true);
+                if (count($existing['translations'] ?? []) >= 4) {
+                    $output->writeln(sprintf('<info>%s exist (4 translations)</info>', $data['reference'] . '.json'));
+                    continue;
+                }
+                $output->writeln(sprintf('<comment>%s exist but missing translations, updating...</comment>', $data['reference'] . '.json'));
             }
 
             $dataCard = $this->getByReference($data['reference'], $locale);
@@ -230,8 +237,7 @@ class UniqueCardJsonGeneratorCommand extends Command
             $t = Cards::byReference($data['reference'], 'es-es');
             $dataCard['translations']['es-es'] = $t;
 
-
-            if ($filesystem->exists($directory . '/' . $data['reference'] . '.json') && !$forceRefresh) {
+            if ($filesystem->exists($filePath) && !$forceRefresh) {
                 $dataCard['updated'] = (new \DateTimeImmutable())->format('Y-m-d H:i:s');
             }
             $fp = fopen($directory . '/' . $data['reference'] . '.json', 'w');
