@@ -4,6 +4,7 @@ namespace Toxicity\AlteredApi\Command;
 
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -42,6 +43,8 @@ class MinioImageUploadCommand extends Command
             InputArgument::OPTIONAL,
             'Sub-directory to process (e.g. DUSTER/AX/97). Processes all if omitted.'
         );
+        $this->addOption('batch-size', null, InputArgument::OPTIONAL, 'Directories per batch (default: process all at once).', 100);
+        $this->addOption('offset',     null, InputArgument::OPTIONAL, 'Number of directories to skip before starting.', 0);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -57,15 +60,49 @@ class MinioImageUploadCommand extends Command
             return Command::FAILURE;
         }
 
-        foreach ($leafDirs as $dir) {
-            $this->processDirectory($dir, $minio, $output);
+        $total     = count($leafDirs);
+        $offset    = max(0, (int) $input->getOption('offset'));
+        $batchSize = max(1, (int) $input->getOption('batch-size'));
+        $leafDirs  = array_slice($leafDirs, $offset);
+
+        $output->writeln(sprintf('<comment>%d directories total, starting at offset %d, batch size %d</comment>', $total, $offset, $batchSize));
+
+        $progress = new ProgressBar($output, count($leafDirs));
+        $progress->setFormat(' %current%/%max% [%bar%] %percent:3s%% | %elapsed:6s% elapsed | ~%estimated:-6s% left | %message%');
+        $progress->setMessage('starting…');
+        $progress->start();
+
+        foreach (array_chunk($leafDirs, $batchSize) as $batch) {
+            foreach ($batch as $dir) {
+                $progress->setMessage(basename(dirname($dir)) . '/' . basename($dir));
+                $this->processDirectory($dir, $minio, $output, $progress);
+                $progress->advance();
+            }
         }
+
+        $progress->setMessage('done');
+        $progress->finish();
+        $output->writeln('');
+        $output->writeln('<info>All directories processed.</info>');
 
         return Command::SUCCESS;
     }
 
-    private function processDirectory(string $dir, MinioService $minio, OutputInterface $output): void
+    private function processDirectory(string $dir, MinioService $minio, OutputInterface $output, ?ProgressBar $progress = null): void
     {
+        // With a progress bar active, only print details in verbose mode to avoid clashing output
+        $log = function (string $msg) use ($output, $progress): void {
+            if (!$output->isVerbose()) {
+                return;
+            }
+            if ($progress) {
+                $progress->clear();
+            }
+            $output->writeln($msg);
+            if ($progress) {
+                $progress->display();
+            }
+        };
         // Build the MinIO folder prefix by stripping 'community_database/' from the path
         $folderPrefix = preg_replace('#^' . preg_quote(self::DB_PATH, '#') . '/#', '', $dir);
 
@@ -98,13 +135,13 @@ class MinioImageUploadCommand extends Command
             $key       = $folderPrefix . '/' . $position . '_' . $assetName;
 
             if ($minio->exists($key)) {
-                $output->writeln(sprintf('<comment>[asset] skip  %s (already exists)</comment>', $key));
+                $log(sprintf('<comment>[asset] skip  %s (already exists)</comment>', $key));
             } else {
                 try {
                     $publicUrl = $minio->uploadFromUrl($assetUrl, $key);
-                    $output->writeln(sprintf('<info>[asset] %s → %s</info>', $key, $publicUrl));
+                    $log(sprintf('<info>[asset] %s → %s</info>', $key, $publicUrl));
                 } catch (\Throwable $e) {
-                    $output->writeln(sprintf('<error>[asset] %s failed: %s</error>', $key, $e->getMessage()));
+                    $log(sprintf('<error>[asset] %s failed: %s</error>', $key, $e->getMessage()));
                 }
             }
 
@@ -122,15 +159,15 @@ class MinioImageUploadCommand extends Command
                 $key = $folderPrefix . '/' . $reference . '/' . $reference . '_' . $locale . '.' . $ext;
 
                 if ($minio->exists($key)) {
-                    $output->writeln(sprintf('<comment>[image] skip  %s (already exists)</comment>', $key));
+                    $log(sprintf('<comment>[image] skip  %s (already exists)</comment>', $key));
                     continue;
                 }
 
                 try {
                     $publicUrl = $minio->uploadFromUrl($imageUrl, $key);
-                    $output->writeln(sprintf('<info>[image] %s → %s</info>', $key, $publicUrl));
+                    $log(sprintf('<info>[image] %s → %s</info>', $key, $publicUrl));
                 } catch (\Throwable $e) {
-                    $output->writeln(sprintf('<error>[image] %s %s failed: %s</error>', $reference, $locale, $e->getMessage()));
+                    $log(sprintf('<error>[image] %s %s failed: %s</error>', $reference, $locale, $e->getMessage()));
                 }
             }
         }
