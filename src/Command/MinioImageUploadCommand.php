@@ -53,37 +53,39 @@ class MinioImageUploadCommand extends Command
         $subDir   = $input->getArgument('directory');
         $basePath = self::DB_PATH . ($subDir ? '/' . trim($subDir, '/') : '');
 
-        $leafDirs = $this->findLeafDirectories($basePath);
-
-        if (empty($leafDirs)) {
+        if (!is_dir($basePath)) {
             $output->writeln(sprintf('<error>No JSON directories found under "%s".</error>', $basePath));
             return Command::FAILURE;
         }
 
-        $total     = count($leafDirs);
         $offset    = max(0, (int) $input->getOption('offset'));
         $batchSize = max(1, (int) $input->getOption('batch-size'));
-        $leafDirs  = array_slice($leafDirs, $offset);
+        $skipped   = 0;
+        $processed = 0;
 
-        $output->writeln(sprintf('<comment>%d directories total, starting at offset %d, batch size %d</comment>', $total, $offset, $batchSize));
+        $output->writeln(sprintf('<comment>Scanning %s (offset %d, batch size %d)…</comment>', $basePath, $offset, $batchSize));
 
-        $progress = new ProgressBar($output, count($leafDirs));
-        $progress->setFormat(' %current%/%max% [%bar%] %percent:3s%% | %elapsed:6s% elapsed | ~%estimated:-6s% left | %message%');
+        $progress = new ProgressBar($output);
+        $progress->setFormat(' %current% dirs | %elapsed:6s% elapsed | %message%');
         $progress->setMessage('starting…');
         $progress->start();
 
-        foreach (array_chunk($leafDirs, $batchSize) as $batch) {
-            foreach ($batch as $dir) {
-                $progress->setMessage(basename(dirname($dir)) . '/' . basename($dir));
-                $this->processDirectory($dir, $minio, $output, $progress);
-                $progress->advance();
+        foreach ($this->iterateLeafDirectories($basePath) as $dir) {
+            if ($skipped < $offset) {
+                $skipped++;
+                continue;
             }
+
+            $progress->setMessage(basename(dirname($dir)) . '/' . basename($dir));
+            $this->processDirectory($dir, $minio, $output, $progress);
+            $progress->advance();
+            $processed++;
         }
 
         $progress->setMessage('done');
         $progress->finish();
         $output->writeln('');
-        $output->writeln('<info>All directories processed.</info>');
+        $output->writeln(sprintf('<info>%d directories processed.</info>', $processed));
 
         return Command::SUCCESS;
     }
@@ -174,32 +176,26 @@ class MinioImageUploadCommand extends Command
     }
 
     /**
-     * Returns all directories that directly contain JSON files.
-     * @return string[]
+     * Yields unique directories containing JSON files, using native PHP iterators (no Finder overhead).
      */
-    private function findLeafDirectories(string $basePath): array
+    private function iterateLeafDirectories(string $basePath): \Generator
     {
-        if (!is_dir($basePath)) {
-            return [];
-        }
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($basePath, \FilesystemIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::LEAVES_ONLY
+        );
 
-        $leaves = [];
-
-        $dirs = (new Finder())->directories()->in($basePath);
-        foreach ($dirs as $dir) {
-            $hasJson = (new Finder())->files()->in($dir->getPathname())->name('*.json')->depth(0)->count();
-            if ($hasJson > 0) {
-                $leaves[] = $dir->getPathname();
+        $seen = [];
+        foreach ($iterator as $file) {
+            /** @var \SplFileInfo $file */
+            if ($file->getExtension() === 'json') {
+                $dir = $file->getPath();
+                if (!isset($seen[$dir])) {
+                    $seen[$dir] = true;
+                    yield $dir;
+                }
             }
         }
-
-        // Also check basePath itself in case a specific leaf was passed
-        $hasJson = (new Finder())->files()->in($basePath)->name('*.json')->depth(0)->count();
-        if ($hasJson > 0) {
-            $leaves[] = $basePath;
-        }
-
-        return array_unique($leaves);
     }
 
     private function extractExtension(string $url): string
