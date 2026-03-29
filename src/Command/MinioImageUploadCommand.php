@@ -66,7 +66,7 @@ class MinioImageUploadCommand extends Command
         $output->writeln(sprintf('<comment>Scanning %s (offset %d, batch size %d)…</comment>', $basePath, $offset, $batchSize));
 
         $progress = new ProgressBar($output);
-        $progress->setFormat(' %current% dirs | %elapsed:6s% elapsed | %message%');
+        $progress->setFormat(' %current% cards | %elapsed:6s% elapsed | %message%');
         $progress->setMessage('starting…');
         $progress->start();
 
@@ -76,21 +76,18 @@ class MinioImageUploadCommand extends Command
                 continue;
             }
 
-            $progress->setMessage(basename(dirname($dir)) . '/' . basename($dir));
-            $this->processDirectory($dir, $minio, $output, $progress);
-            $progress->advance();
-            $processed++;
+            $processed += $this->processDirectory($dir, $minio, $output, $progress);
         }
 
         $progress->setMessage('done');
         $progress->finish();
         $output->writeln('');
-        $output->writeln(sprintf('<info>%d directories processed.</info>', $processed));
+        $output->writeln(sprintf('<info>%d cards processed.</info>', $processed));
 
         return Command::SUCCESS;
     }
 
-    private function processDirectory(string $dir, MinioService $minio, OutputInterface $output, ?ProgressBar $progress = null): void
+    private function processDirectory(string $dir, MinioService $minio, OutputInterface $output, ?ProgressBar $progress = null): int
     {
         // With a progress bar active, only print details in verbose mode to avoid clashing output
         $log = function (string $msg) use ($output, $progress): void {
@@ -105,7 +102,7 @@ class MinioImageUploadCommand extends Command
                 $progress->display();
             }
         };
-        // Build the MinIO folder prefix by stripping 'community_database/' from the path
+
         $folderPrefix = preg_replace('#^' . preg_quote(self::DB_PATH, '#') . '/#', '', $dir);
 
         $jsonFiles = (new Finder())->files()->in($dir)->name('*.json')->depth(0)->sortByName();
@@ -150,8 +147,13 @@ class MinioImageUploadCommand extends Command
             $position++;
         }
 
-        // Upload locale images to per-reference sub-folders
+        // Upload locale images to per-reference sub-folders, advance progress per card
+        $count = 0;
         foreach ($cards as $reference => $locales) {
+            if ($progress) {
+                $progress->setMessage($reference);
+            }
+
             foreach ($locales as $locale => $imageUrl) {
                 if (empty($imageUrl)) {
                     continue;
@@ -172,7 +174,14 @@ class MinioImageUploadCommand extends Command
                     $log(sprintf('<error>[image] %s %s failed: %s</error>', $reference, $locale, $e->getMessage()));
                 }
             }
+
+            if ($progress) {
+                $progress->advance();
+            }
+            $count++;
         }
+
+        return $count;
     }
 
     /**
