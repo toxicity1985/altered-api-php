@@ -29,6 +29,7 @@ use \Toxicity\AlteredApi\Command\UniqueCardJsonGeneratorCommand;
 use \Toxicity\AlteredApi\Command\AlteredMarketPlaceGeneratorCommand;
 use \Toxicity\AlteredApi\Command\ImageUploadCommand;
 use \Toxicity\AlteredApi\Command\MinioImageUploadCommand;
+use \Toxicity\AlteredApi\Command\RareCommuneJsonGeneratorCommand;
 
 $application = new Application();
 $application->addCommand(new AlteredTokenCommand());
@@ -48,6 +49,7 @@ $application->addCommand(new UniqueCardJsonGeneratorCommand(
     new SetRepository($entityManager),
     new CardRepository($entityManager)
 ));
+$application->addCommand(new RareCommuneJsonGeneratorCommand());
 $application->addCommand(new AlteredMarketPlaceGeneratorCommand(
     new FactionRepository($entityManager),
     new SetRepository($entityManager),
